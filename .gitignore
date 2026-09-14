@@ -1,6 +1,18 @@
 # Local planning
 TASKS.md
+AGENTS.md
 
 # Private problem data, submission history, and runtime state
 local/
 
+# Python environments and generated files
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
