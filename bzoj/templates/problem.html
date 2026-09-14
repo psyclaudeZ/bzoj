@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Hello World{% endblock %}
+{% block content %}
+<main class="workspace">
+  <section class="panel statement" aria-labelledby="problem-title">
+    <div class="panel-heading"><span>Description</span><span class="muted">01</span></div>
+    <div class="statement-content">
+      <span class="difficulty">Easy</span>
+      <h1 id="problem-title">Hello World</h1>
+      <p>Write a Python program that prints <code>hello world</code> to standard output.</p>
+      <p>Edit the code on the right, then submit it to see what your program produces.</p>
+      <h2>Expected output</h2>
+      <pre class="example">hello world</pre>
+      <h2>Details</h2>
+      <ul><li>No input is required.</li><li>Use Python’s <code>print()</code> function.</li></ul>
+      <p class="statement-note">Submissions run as Python scripts. Output is shown below the editor; answers are not graded yet.</p>
+    </div>
+  </section>
+  <section class="panel editor-panel" aria-labelledby="editor-title">
+    <form method="post" action="/problems/hello-world/submit" class="editor-form">
+      <div class="panel-heading"><label id="editor-title" for="source">Code</label><span class="language">Python 3.14</span></div>
+      <textarea id="source" name="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-describedby="execution-note">{{ source }}</textarea>
+      <div class="editor-footer">
+        <p id="execution-note">Runs locally with your permissions. Trusted code only.</p>
+        <button type="submit">Submit <span aria-hidden="true">→</span></button>
+      </div>
+    </form>
+    <section class="results" aria-labelledby="result-title">
+      <div class="panel-heading"><h2 id="result-title">Output</h2><span class="muted">5 s · 64 KiB limit</span></div>
+      <div class="result-content">
+        {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+        {% if result %}
+          <div class="result-summary" role="status">
+            <strong class="{{ 'success' if result.status == 'Success' else 'error' }}">{{ result.status }}</strong>
+            <span class="muted">{{ result.duration_ms }} ms{% if result.exit_code is not none %} · exit {{ result.exit_code }}{% endif %}</span>
+          </div>
+          {% if result.status == 'Output limit exceeded' %}<p class="muted">Output was truncated at 64 KiB. Execution stopped.</p>{% endif %}
+          <h3>stdout</h3><pre class="output">{{ result.stdout if result.stdout else '(no output)' }}</pre>
+          {% if result.stderr %}<h3>stderr</h3><pre class="output error">{{ result.stderr }}</pre>{% endif %}
+        {% elif not error %}
+          <p class="empty-output">Submit your code to see its output here.</p>
+        {% endif %}
+      </div>
+    </section>
+  </section>
+</main>
+{% endblock %}
