@@ -37,6 +37,7 @@ def test_duplicate_slug_is_rejected_and_edits_are_reloaded(tmp_path):
         assert 'duplicate slug' in errors[0]
         data = json.loads(raw)
         data['slug'] = 'custom'
+        data['number'] = 20
         path.write_text(json.dumps(data))
         problems, errors = catalog()
         assert 'custom' in problems
@@ -61,3 +62,46 @@ def test_nonfinite_numbers_and_deep_json_fail_cleanly(tmp_path):
         path.write_text(raw)
         with pytest.raises(ProblemError):
             load_problem(path)
+
+
+@pytest.mark.parametrize('number', [0, -1, True, 1.5, '2', None])
+def test_problem_number_must_be_positive_integer(tmp_path, number):
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    data['number'] = number
+    path = tmp_path / 'bad-number.json'
+    path.write_text(json.dumps(data))
+    with pytest.raises(ProblemError, match='number'):
+        load_problem(path)
+
+
+def test_problem_number_is_required(tmp_path):
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    del data['number']
+    path = tmp_path / 'missing-number.json'
+    path.write_text(json.dumps(data))
+    with pytest.raises(ProblemError, match='number'):
+        load_problem(path)
+
+
+def test_catalog_sorts_by_stable_number_and_rejects_collisions(tmp_path):
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    bundled, private = tmp_path / 'examples', tmp_path / 'private'
+    bundled.mkdir()
+    private.mkdir()
+    for directory, filename, slug, number in [
+        (bundled, 'a.json', 'ten', 10),
+        (bundled, 'z.json', 'thirty', 30),
+        (private, 'middle.json', 'two', 2),
+    ]:
+        (directory / filename).write_text(json.dumps({**data, 'slug': slug, 'number': number}))
+    with patch('bzoj.problems.EXAMPLES', bundled), patch('bzoj.problems.PRIVATE', private):
+        problems, errors = catalog()
+        assert not errors
+        assert [p.number for p in problems.values()] == [2, 10, 30]
+        (private / 'middle.json').rename(private / 'renamed.json')
+        assert list(catalog()[0]) == ['two', 'ten', 'thirty']
+        (private / 'collision.json').write_text(json.dumps({**data, 'slug': 'collision', 'number': 10}))
+        problems, errors = catalog()
+        assert list(problems) == ['two', 'thirty']
+        assert len(errors) == 2
+        assert all('duplicate number 10' in error for error in errors)

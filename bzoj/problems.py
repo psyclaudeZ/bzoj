@@ -1,6 +1,7 @@
 """Single-file problem definitions; private files live under local/problems/."""
 
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Literal
 
@@ -23,6 +24,7 @@ class TestCase(BaseModel):
 class Problem(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, hide_input_in_errors=True)
     schema_version: Literal[1]
+    number: int = Field(gt=0)
     slug: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=80)
     title: str = Field(min_length=1)
     statement: str = Field(min_length=1)
@@ -57,18 +59,26 @@ def reject_constant(value: str):
 
 
 def catalog() -> tuple[dict[str, Problem], list[str]]:
-    problems = {}
+    loaded = []
     errors = []
-    duplicates = set()
     for directory in (EXAMPLES, PRIVATE):
         for path in sorted(directory.glob("*.json")):
             try:
                 problem = load_problem(path)
-                if problem.slug in problems or problem.slug in duplicates:
-                    problems.pop(problem.slug, None)
-                    duplicates.add(problem.slug)
-                    raise ProblemError(f"{path.name}: duplicate slug '{problem.slug}'.")
-                problems[problem.slug] = problem
+                loaded.append((path, problem))
             except ProblemError as exc:
                 errors.append(str(exc))
+    slugs = Counter(problem.slug for _, problem in loaded)
+    numbers = Counter(problem.number for _, problem in loaded)
+    problems = {}
+    for path, problem in sorted(loaded, key=lambda item: item[1].number):
+        conflicts = []
+        if slugs[problem.slug] > 1:
+            conflicts.append(f"duplicate slug '{problem.slug}'")
+        if numbers[problem.number] > 1:
+            conflicts.append(f"duplicate number {problem.number}")
+        if conflicts:
+            errors.append(f"{path.name}: {', '.join(conflicts)}.")
+        else:
+            problems[problem.slug] = problem
     return problems, errors

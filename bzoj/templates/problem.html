@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}{{ problem.title }}{% endblock %}
+{% block title %}{{ problem.number }}. {{ problem.title }}{% endblock %}
 {% block content %}
 <main class="workspace">
   <section class="panel statement" aria-labelledby="problem-title">
     <div class="panel-heading"><span>Description</span><span class="muted">{{ problem.tests|length }} tests</span></div>
     <div class="statement-content">
-      <h1 id="problem-title">{{ problem.title }}</h1>
+      <h1 id="problem-title">{{ problem.number }}. {{ problem.title }}</h1>
       {{ problem.statement|markdown }}
       {% for example in examples %}
       <h2>Example {{ loop.index }}</h2>

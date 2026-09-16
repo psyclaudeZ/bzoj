@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "number": 1,
   "slug": "hello-world",
   "title": "Hello World",
   "statement": "Write hello_world(name) to return a greeting in the form hello <name>.",

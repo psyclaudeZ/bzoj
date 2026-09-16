@@ -67,7 +67,6 @@ button span { margin-left: 12px; }
   .brand span { display: none; }
   .problem-list { margin-top: 32px; padding: 0 16px; }
   .table-heading, .problem-row { padding-left: 16px; padding-right: 16px; gap: 8px; }
-  .problem-number { display: none; }
   .workspace { grid-template-columns: 1fr; height: auto; padding: 12px; }
   .statement-content { padding: 20px; }
   .editor-panel { min-height: 620px; grid-template-rows: 380px minmax(220px, auto); }

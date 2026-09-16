@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "number": 2,
   "slug": "counter",
   "title": "Counter",
   "statement": "Implement Counter with increment() and get() methods.",

@@ -102,7 +102,7 @@ def test_json_problem_is_discovered_and_hidden_data_stays_private(tmp_path):
     import json
     from bzoj.problems import EXAMPLES
     data = json.loads((EXAMPLES / 'hello-world.json').read_text())
-    data.update(slug='custom', title='Custom', statement='A **bold** statement <script>bad()</script>')
+    data.update(number=20, slug='custom', title='Custom', statement='A **bold** statement <script>bad()</script>')
     data['tests'][1]['input']['name'] = 'SECRET_INPUT_782'
     data['tests'][1]['expected'] = 'SECRET_EXPECTED_413'
     (tmp_path / 'custom.json').write_text(json.dumps(data))
@@ -127,3 +127,19 @@ def test_invalid_problem_is_reported_without_breaking_list(tmp_path):
     assert response.status_code == 200
     assert 'broken.json' in response.text
     assert 'Hello World' in response.text
+
+
+def test_home_uses_problem_numbers_in_numeric_order(tmp_path):
+    import json
+    from bzoj.problems import EXAMPLES
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    for slug, number in [('first-file', 10), ('last-file', 2)]:
+        (tmp_path / f'{slug}.json').write_text(json.dumps({**data, 'slug': slug, 'number': number}))
+    with patch('bzoj.problems.EXAMPLES', tmp_path), patch('bzoj.problems.PRIVATE', tmp_path / 'empty'):
+        response = client.get('/')
+        assert response.status_code == 200
+        assert response.text.index('href="/problems/last-file"') < response.text.index('href="/problems/first-file"')
+        assert 'class="problem-number">2</span>' in response.text
+        assert 'class="problem-number">10</span>' in response.text
+        detail = client.get('/problems/first-file')
+        assert '<h1 id="problem-title">10. Counter</h1>' in detail.text
