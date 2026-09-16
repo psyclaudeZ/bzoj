@@ -68,3 +68,18 @@ def test_case_state_is_fresh_and_budget_is_shared():
         result = judge(problem, source)
     assert result.cases[0]['status'] == 'Accepted'
     assert result.cases[1]['status'] == 'Time limit exceeded'
+
+
+def test_each_case_has_fresh_submission_globals():
+    problem = load_problem(EXAMPLES / 'hello-world.json')
+    source = "calls = 0\ndef hello_world(name):\n    global calls\n    calls += 1\n    return 'hello ' + name if calls == 1 else 'leaked state'"
+    assert judge(problem, source).status == 'Accepted'
+
+
+def test_output_budget_is_shared_across_cases():
+    problem = load_problem(EXAMPLES / 'hello-world.json')
+    source = "def hello_world(name):\n    print('x' * 40000)\n    return 'hello ' + name"
+    result = judge(problem, source)
+    assert result.cases[0]['status'] == 'Accepted'
+    assert result.cases[1]['status'] == 'Output limit exceeded'
+    assert result.status == 'Output limit exceeded'

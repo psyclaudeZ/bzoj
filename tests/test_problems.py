@@ -53,3 +53,11 @@ def test_size_and_slug_validation(tmp_path):
     path.write_text(json.dumps(data))
     with pytest.raises(ProblemError, match='slug'):
         load_problem(path)
+
+
+def test_nonfinite_numbers_and_deep_json_fail_cleanly(tmp_path):
+    path = tmp_path / 'bad.json'
+    for raw in ('{"value": 1e9999}', '[' * 2000 + ']' * 2000):
+        path.write_text(raw)
+        with pytest.raises(ProblemError):
+            load_problem(path)

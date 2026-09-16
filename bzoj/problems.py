@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
 ROOT = Path(__file__).resolve().parent.parent
 EXAMPLES = ROOT / "examples" / "problems"
@@ -13,7 +13,7 @@ MAX_PROBLEM_BYTES = 1024 * 1024
 
 
 class TestCase(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
+    model_config = ConfigDict(extra="forbid", strict=True, hide_input_in_errors=True)
     input: JsonValue
     expected: JsonValue
     hidden: bool = False
@@ -21,7 +21,7 @@ class TestCase(BaseModel):
 
 
 class Problem(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
+    model_config = ConfigDict(extra="forbid", strict=True, hide_input_in_errors=True)
     schema_version: Literal[1]
     slug: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=80)
     title: str = Field(min_length=1)
@@ -44,10 +44,12 @@ def load_problem(path: Path) -> Problem:
         if len(raw) > MAX_PROBLEM_BYTES:
             raise ValueError("Problem file exceeds 1 MiB.")
         data = json.loads(raw, parse_constant=lambda value: reject_constant(value))
+        # JSON decoding can turn an overflowing numeric literal into infinity.
+        json.dumps(data, allow_nan=False)
         problem = Problem.model_validate(data)
         compile(problem.driver_code, "driver_code", "exec")
         return problem
-    except (OSError, ValueError, SyntaxError, ValidationError) as exc:
+    except (OSError, ValueError, SyntaxError, RecursionError) as exc:
         raise ProblemError(f"{path.name}: {exc}") from exc
 
 
