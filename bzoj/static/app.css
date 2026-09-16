@@ -24,7 +24,11 @@ h1 { font-size: 28px; line-height: 1.25; letter-spacing: -.7px; margin: 0; }
 .intro { color: var(--muted); margin: 12px 0 32px; }
 .problem-table { background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .table-heading, .problem-row { display: grid; grid-template-columns: 1fr; align-items: center; gap: 16px; padding: 18px 24px; }
-.table-heading { padding-top: 12px; padding-bottom: 12px; background: #fafbfc; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+.table-heading { grid-template-columns: 1fr auto; padding-top: 12px; padding-bottom: 12px; background: #fafbfc; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+.sort-control { display: flex; align-items: center; gap: 8px; }
+.sort-control a { padding: 3px 6px; border-radius: 4px; }
+.sort-control a:hover { color: var(--accent); }
+.sort-control a[aria-current="true"] { color: var(--accent); background: #eaf0fd; font-weight: 600; }
 .problem-row:hover { background: #f4f7ff; }
 .problem-number { color: var(--muted); font-family: monospace; margin-right: 24px; }
 .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; padding: 20px; height: calc(100dvh - 64px); min-height: 620px; }

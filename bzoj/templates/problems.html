@@ -7,7 +7,14 @@
   </div>
   {% for error in errors %}<p class="error" role="alert">{{ error }}</p>{% endfor %}
   <div class="problem-table">
-    <div class="table-heading"><span>Problem</span></div>
+    <div class="table-heading">
+      <span>Problem</span>
+      <div class="sort-control" role="group" aria-label="Sort problems">
+        <span>Sort by</span>
+        <a href="/?sort=number" {% if sort == 'number' %}aria-current="true"{% endif %}>Number</a>
+        <a href="/?sort=name" {% if sort == 'name' %}aria-current="true"{% endif %}>Name</a>
+      </div>
+    </div>
     {% for problem in problems %}
     <a class="problem-row" href="/problems/{{ problem.slug }}">
       <span><span class="problem-number">{{ problem.number }}</span><strong>{{ problem.title }}</strong></span>

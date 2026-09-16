@@ -143,3 +143,24 @@ def test_home_uses_problem_numbers_in_numeric_order(tmp_path):
         assert 'class="problem-number">10</span>' in response.text
         detail = client.get('/problems/first-file')
         assert '<h1 id="problem-title">10. Counter</h1>' in detail.text
+
+
+def test_home_sort_controls_and_name_order(tmp_path):
+    import json
+    from bzoj.problems import EXAMPLES
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    for slug, title, number in [('zulu', 'Zulu', 1), ('alpha-later', 'alpha', 10), ('alpha-first', 'Alpha', 2)]:
+        (tmp_path / f'{slug}.json').write_text(json.dumps({**data, 'slug': slug, 'title': title, 'number': number}))
+    with patch('bzoj.problems.EXAMPLES', tmp_path), patch('bzoj.problems.PRIVATE', tmp_path / 'empty'):
+        for query, order, selected in [
+            ('', ['zulu', 'alpha-first', 'alpha-later'], 'number'),
+            ('?sort=number', ['zulu', 'alpha-first', 'alpha-later'], 'number'),
+            ('?sort=name', ['alpha-first', 'alpha-later', 'zulu'], 'name'),
+            ('?sort=invalid', ['zulu', 'alpha-first', 'alpha-later'], 'number'),
+        ]:
+            response = client.get('/' + query)
+            assert response.status_code == 200
+            positions = [response.text.index(f'href="/problems/{slug}"') for slug in order]
+            assert positions == sorted(positions)
+            assert f'href="/?sort={selected}" aria-current="true"' in response.text
+            assert 'class="problem-number">10</span>' in response.text
