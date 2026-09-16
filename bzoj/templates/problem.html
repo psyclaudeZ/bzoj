@@ -1,23 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Hello World{% endblock %}
+{% block title %}{{ problem.title }}{% endblock %}
 {% block content %}
 <main class="workspace">
   <section class="panel statement" aria-labelledby="problem-title">
-    <div class="panel-heading"><span>Description</span><span class="muted">01</span></div>
+    <div class="panel-heading"><span>Description</span><span class="muted">{{ problem.tests|length }} tests</span></div>
     <div class="statement-content">
-      <span class="difficulty">Easy</span>
-      <h1 id="problem-title">Hello World</h1>
-      <p>Write a Python program that prints <code>hello world</code> to standard output.</p>
-      <p>Edit the code on the right, then submit it to see what your program produces.</p>
-      <h2>Expected output</h2>
-      <pre class="example">hello world</pre>
-      <h2>Details</h2>
-      <ul><li>No input is required.</li><li>Use Python’s <code>print()</code> function.</li></ul>
-      <p class="statement-note">Submissions run as Python scripts. Output is shown below the editor; answers are not graded yet.</p>
+      <span class="difficulty">{{ problem.difficulty|capitalize }}</span>
+      <h1 id="problem-title">{{ problem.title }}</h1>
+      {{ problem.statement|markdown }}
+      {% for example in examples %}
+      <h2>Example {{ loop.index }}</h2>
+      <pre class="example">Input: {{ example.input|tojson }}
+Expected: {{ example.expected|tojson }}</pre>
+      {% if example.explanation %}{{ example.explanation|markdown }}{% endif %}
+      {% endfor %}
+      {% if problem.constraints %}<h2>Constraints</h2>
+      <ul>{% for constraint in problem.constraints %}<li>{{ constraint }}</li>{% endfor %}</ul>{% endif %}
+      <p class="statement-note">The problem driver calls your code for each test and compares its return value. Each test starts fresh.</p>
     </div>
   </section>
   <section class="panel editor-panel" aria-labelledby="editor-title">
-    <form method="post" action="/problems/hello-world/submit" class="editor-form">
+    <form method="post" action="/problems/{{ problem.slug }}/submit" class="editor-form">
       <div class="panel-heading"><label id="editor-title" for="source">Code</label><span class="language">Python 3.14</span></div>
       <textarea id="source" name="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-describedby="execution-note">{{ source }}</textarea>
       <div class="editor-footer">
@@ -31,10 +34,19 @@
         {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
         {% if result %}
           <div class="result-summary" role="status">
-            <strong class="{{ 'success' if result.status == 'Success' else 'error' }}">{{ result.status }}</strong>
-            <span class="muted">{{ result.duration_ms }} ms{% if result.exit_code is not none %} · exit {{ result.exit_code }}{% endif %}</span>
+            <strong class="{{ 'success' if result.status == 'Accepted' else 'error' }}">{{ result.status }}</strong>
+            <span class="muted">{{ result.duration_ms }} ms</span>
           </div>
           {% if result.status == 'Output limit exceeded' %}<p class="muted">Output was truncated at 64 KiB. Execution stopped.</p>{% endif %}
+          {% for case in result.cases %}
+          <details class="case-result">
+            <summary>Test {{ case.number }}{{ ' · hidden' if case.hidden else '' }} — {{ case.status }}</summary>
+            {% if case.hidden %}<p class="muted">Hidden test details and output are not shown.</p>
+            {% elif 'actual' in case %}<pre class="output">Input: {{ case.input|tojson }}
+Expected: {{ case.expected|tojson }}
+Actual: {{ case.actual|tojson }}</pre>{% endif %}
+          </details>
+          {% endfor %}
           <h3>stdout</h3><pre class="output">{{ result.stdout if result.stdout else '(no output)' }}</pre>
           {% if result.stderr %}<h3>stderr</h3><pre class="output error">{{ result.stderr }}</pre>{% endif %}
         {% elif not error %}

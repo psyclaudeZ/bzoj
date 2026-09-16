@@ -7,14 +7,19 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from markdown_it import MarkdownIt
+from markupsafe import Markup
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from bzoj.runner import MAX_SOURCE_BYTES, run_source
+from bzoj.runner import MAX_SOURCE_BYTES
+from bzoj.judge import judge
+from bzoj.problems import catalog
 
 ROOT = Path(__file__).parent
-STARTER = (ROOT / "scripts" / "hello_world.py").read_text(encoding="utf-8")
 templates = Jinja2Templates(directory=ROOT / "templates")
+markdown = MarkdownIt("commonmark", {"html": False})
+templates.env.filters["markdown"] = lambda text: Markup(markdown.render(text))
 
 
 @asynccontextmanager
@@ -33,22 +38,37 @@ app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse(request=request, name="problems.html")
-
-
-def problem_page(request: Request, source: str = STARTER, **context):
+    problems, errors = catalog()
     return templates.TemplateResponse(
-        request=request, name="problem.html", context={"source": source, **context}
+        request=request, name="problems.html",
+        context={"problems": list(problems.values()), "errors": errors},
     )
 
 
-@app.get("/problems/hello-world", response_class=HTMLResponse)
-def problem(request: Request):
-    return problem_page(request)
+def get_problem(slug: str):
+    problems, _ = catalog()
+    if slug not in problems:
+        raise HTTPException(404, "Problem not found. Check the problem list for loading errors.")
+    return problems[slug]
 
 
-@app.post("/problems/hello-world/submit", response_class=HTMLResponse)
-async def submit(request: Request):
+def problem_page(request: Request, problem, source: str | None = None, **context):
+    return templates.TemplateResponse(
+        request=request, name="problem.html", context={
+            "problem": problem,
+            "examples": [test for test in problem.tests if not test.hidden],
+            "source": problem.starter_code if source is None else source, **context,
+        }
+    )
+
+
+@app.get("/problems/{slug}", response_class=HTMLResponse)
+def problem(request: Request, slug: str):
+    return problem_page(request, get_problem(slug))
+
+
+@app.post("/problems/{slug}/submit", response_class=HTMLResponse)
+async def submit(request: Request, slug: str):
     # Prevent unrelated websites from posting Python into this local service.
     origin = request.headers.get("origin")
     if (origin is not None and origin != str(request.base_url).rstrip("/")) or (
@@ -71,9 +91,10 @@ async def submit(request: Request):
     source = fields["source"][0]
     if len(source.encode("utf-8")) > MAX_SOURCE_BYTES:
         raise HTTPException(413, "Source must be at most 64 KiB.")
-    result = await run_in_threadpool(run_source, source)
-    response = problem_page(request, source, result=result)
-    if result.status == "Server error":
+    problem = get_problem(slug)
+    result = await run_in_threadpool(judge, problem, source)
+    response = problem_page(request, problem, source, result=result)
+    if result.status == "Judge error":
         response.status_code = 502
     return response
 

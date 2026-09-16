@@ -61,6 +61,10 @@ button span { margin-left: 12px; }
 .empty-output { color: var(--muted); margin: 16px 0; }
 .result-content h3 { font-size: 11px; color: var(--muted); font-weight: 500; margin: 16px 0 6px; }
 .output { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.example { white-space: pre-wrap; overflow-wrap: anywhere; }
+.case-result { margin: 12px 0; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.case-result summary { cursor: pointer; font-size: 12px; }
+.case-result pre { margin-top: 8px; }
 @media (max-width: 760px) {
   .site-header { padding: 0 16px; gap: 24px; }
   .brand span, .local-label { display: none; }
