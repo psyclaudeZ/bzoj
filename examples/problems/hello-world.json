@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "slug": "hello-world",
+  "title": "Hello World",
+  "difficulty": "easy",
+  "statement": "Write hello_world(name) to return a greeting in the form hello <name>.",
+  "constraints": [
+    "name is a non-empty string.",
+    "Return the greeting; printing it does not count."
+  ],
+  "starter_code": "def hello_world(name):\n    pass\n",
+  "driver_code": "def run_case(case):\n    return hello_world(case['name'])\n",
+  "tests": [
+    {
+      "input": {
+        "name": "world"
+      },
+      "expected": "hello world",
+      "hidden": false
+    },
+    {
+      "input": {
+        "name": "Python"
+      },
+      "expected": "hello Python",
+      "hidden": true
+    }
+  ]
+}

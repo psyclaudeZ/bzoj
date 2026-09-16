@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "slug": "counter",
+  "title": "Counter",
+  "difficulty": "easy",
+  "statement": "Implement Counter with increment() and get() methods.",
+  "constraints": [
+    "The initial value is an integer.",
+    "increment() adds one and returns None.",
+    "get() returns the current value."
+  ],
+  "starter_code": "class Counter:\n    def __init__(self, initial):\n        pass\n\n    def increment(self):\n        pass\n\n    def get(self):\n        pass\n",
+  "driver_code": "def run_case(case):\n    counter = Counter(case['initial'])\n    return [getattr(counter, method)() for method in case['calls']]\n",
+  "tests": [
+    {
+      "input": {
+        "initial": 5,
+        "calls": [
+          "increment",
+          "increment",
+          "get"
+        ]
+      },
+      "expected": [
+        null,
+        null,
+        7
+      ],
+      "hidden": false
+    },
+    {
+      "input": {
+        "initial": -1,
+        "calls": [
+          "get",
+          "increment",
+          "get"
+        ]
+      },
+      "expected": [
+        -1,
+        null,
+        0
+      ],
+      "hidden": true
+    }
+  ]
+}
