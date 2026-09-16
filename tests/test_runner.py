@@ -61,3 +61,15 @@ def test_rejects_oversized_source() -> None:
 def test_spawn_failure_is_server_error() -> None:
     with patch("bzoj.runner.subprocess.Popen", side_effect=OSError):
         assert run_source("print('hello')").status == "Server error"
+
+
+def test_harness_report_is_separate_from_stdout():
+    harness = Path('bzoj/harness.py').read_text()
+    result = run_source(harness, files={
+        'user.py': "def greet(name):\n    print('debug')\n    return 'hello ' + name",
+        'driver.py': "def run_case(case):\n    return greet(case)",
+        'case.json': '"world"',
+    })
+    import json
+    assert result.stdout == 'debug\n'
+    assert json.loads(result.report) == {'status': 'Returned', 'actual': 'hello world'}

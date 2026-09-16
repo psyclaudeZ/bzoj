@@ -22,6 +22,7 @@ class RunResult:
     stderr: str
     exit_code: int | None
     duration_ms: int
+    report: str = ""
 
 
 def _kill_group(process: subprocess.Popen) -> None:
@@ -31,7 +32,10 @@ def _kill_group(process: subprocess.Popen) -> None:
         pass
 
 
-def run_source(source: str) -> RunResult:
+def run_source(
+    source: str, *, files: dict[str, str] | None = None,
+    timeout: float | None = None, output_limit: int | None = None,
+) -> RunResult:
     if len(source.encode("utf-8")) > MAX_SOURCE_BYTES:
         raise ValueError("Source must be at most 64 KiB.")
     started = time.monotonic()
@@ -39,10 +43,17 @@ def run_source(source: str) -> RunResult:
     size = 0
     status = "Success"
     exit_code = None
+    report = ""
+    timeout = TIMEOUT_SECONDS if timeout is None else timeout
+    output_limit = MAX_OUTPUT_BYTES if output_limit is None else output_limit
     try:
         with TemporaryDirectory(prefix="bzoj-run-") as workdir:
             script = Path(workdir) / "submission.py"
             script.write_text(source, encoding="utf-8")
+            for name, content in (files or {}).items():
+                if name not in {"user.py", "driver.py", "case.json"}:
+                    raise ValueError("Unsupported harness file.")
+                (Path(workdir) / name).write_text(content, encoding="utf-8")
             with subprocess.Popen(
                 [sys.executable, "-I", "-u", str(script)],
                 cwd=workdir,
@@ -56,7 +67,7 @@ def run_source(source: str) -> RunResult:
                         selector.register(process.stdout, selectors.EVENT_READ, "stdout")
                         selector.register(process.stderr, selectors.EVENT_READ, "stderr")
                         while selector.get_map() or process.poll() is None:
-                            remaining = TIMEOUT_SECONDS - (time.monotonic() - started)
+                            remaining = timeout - (time.monotonic() - started)
                             if remaining <= 0:
                                 status = "Time limit exceeded"
                                 break
@@ -65,7 +76,7 @@ def run_source(source: str) -> RunResult:
                                 if not chunk:
                                     selector.unregister(key.fileobj)
                                     continue
-                                available = MAX_OUTPUT_BYTES - size
+                                available = output_limit - size
                                 output[key.data].extend(chunk[:available])
                                 size += min(len(chunk), available)
                                 if len(chunk) > available:
@@ -80,6 +91,13 @@ def run_source(source: str) -> RunResult:
                 exit_code = process.returncode
                 if status == "Success" and exit_code != 0:
                     status = "Runtime error"
+            if files and (Path(workdir) / "result.json").exists():
+                with (Path(workdir) / "result.json").open("rb") as stream:
+                    raw = stream.read(MAX_OUTPUT_BYTES + 1)
+                if len(raw) > MAX_OUTPUT_BYTES:
+                    status = "Output limit exceeded"
+                else:
+                    report = raw.decode("utf-8", errors="replace")
     except OSError:
         status = "Server error"
         output["stderr"] = bytearray(b"The server could not start or complete execution.")
@@ -89,4 +107,5 @@ def run_source(source: str) -> RunResult:
         stderr=output["stderr"].decode("utf-8", errors="replace"),
         exit_code=exit_code,
         duration_ms=round((time.monotonic() - started) * 1000),
+        report=report,
     )
