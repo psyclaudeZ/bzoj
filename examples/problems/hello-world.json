@@ -2,7 +2,6 @@
   "schema_version": 1,
   "slug": "hello-world",
   "title": "Hello World",
-  "difficulty": "easy",
   "statement": "Write hello_world(name) to return a greeting in the form hello <name>.",
   "constraints": [
     "name is a non-empty string.",

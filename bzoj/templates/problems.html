@@ -8,11 +8,11 @@
   <p class="intro">Pick a problem and work through it in Python.</p>
   {% for error in errors %}<p class="error" role="alert">{{ error }}</p>{% endfor %}
   <div class="problem-table">
-    <div class="table-heading"><span>Problem</span><span>Difficulty</span><span>Language</span></div>
+    <div class="table-heading"><span>Problem</span><span>Language</span></div>
     {% for problem in problems %}
     <a class="problem-row" href="/problems/{{ problem.slug }}">
       <span><span class="problem-number">{{ loop.index }}</span><strong>{{ problem.title }}</strong></span>
-      <span class="difficulty">{{ problem.difficulty|capitalize }}</span><span class="muted">Python <span aria-hidden="true">↗</span></span>
+      <span class="muted">Python <span aria-hidden="true">↗</span></span>
     </a>
     {% else %}<p class="intro">No valid problems found.</p>{% endfor %}
   </div>

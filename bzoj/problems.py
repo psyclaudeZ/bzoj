@@ -25,7 +25,6 @@ class Problem(BaseModel):
     schema_version: Literal[1]
     slug: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=80)
     title: str = Field(min_length=1)
-    difficulty: Literal["easy", "medium", "hard"] = "easy"
     statement: str = Field(min_length=1)
     constraints: list[str] = Field(default_factory=list)
     starter_code: str
