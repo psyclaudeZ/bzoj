@@ -15,7 +15,11 @@ Expected: {{ example.expected|tojson }}</pre>
       {% endfor %}
       {% if problem.constraints %}<h2>Constraints</h2>
       <ul>{% for constraint in problem.constraints %}<li>{{ constraint }}</li>{% endfor %}</ul>{% endif %}
-      <p class="statement-note">The problem driver calls your code for each test and compares its return value. Each test starts fresh.</p>
+      {% if problem.tags %}
+      <div class="statement-tags problem-tags" role="group" aria-label="Problem tags">
+        {% for tag in problem.tags %}<a class="tag" href="/?{{ {'tag': tag}|urlencode }}">#{{ tag }}</a>{% endfor %}
+      </div>
+      {% endif %}
     </div>
   </section>
   <section class="panel editor-panel" aria-labelledby="editor-title">
