@@ -30,6 +30,14 @@ h1 { font-size: 28px; line-height: 1.25; letter-spacing: -.7px; margin: 0; }
 .sort-control a:hover { color: var(--accent); }
 .sort-control a[aria-current="true"] { color: var(--accent); background: #eaf0fd; font-weight: 600; }
 .problem-row:hover { background: #f4f7ff; }
+.problem-row { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.problem-link { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tag-filters, .problem-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tag-filters { margin-bottom: 16px; }
+.tag { display: inline-block; padding: 3px 8px; border-radius: 4px; background: #edf0f5; color: #526174; font-size: 12px; overflow-wrap: anywhere; }
+.tag:hover, .tag[aria-current="true"] { background: #dfe9ff; color: var(--accent); }
+.tag[aria-current="true"] { font-weight: 600; }
+.empty-list { margin: 0; padding: 24px; color: var(--muted); }
 .problem-number { color: var(--muted); font-family: monospace; margin-right: 24px; }
 .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; padding: 20px; height: calc(100dvh - 64px); min-height: 620px; }
 .panel { background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-width: 0; }

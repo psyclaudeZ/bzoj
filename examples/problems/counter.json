@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "number": 2,
+  "tags": ["其他"],
   "slug": "counter",
   "title": "Counter",
   "statement": "Implement Counter with increment() and get() methods.",

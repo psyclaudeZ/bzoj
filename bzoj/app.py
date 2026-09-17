@@ -38,17 +38,19 @@ app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request, sort: str = "number"):
+def home(request: Request, sort: str = "number", tag: str = ""):
     problems, errors = catalog()
     sort = sort if sort in {"number", "name"} else "number"
+    tags = sorted({tag for problem in problems.values() for tag in problem.tags}, key=str.casefold)
     ordered = sorted(
-        problems.values(),
+        (problem for problem in problems.values() if not tag or tag in problem.tags),
         key=lambda problem: (problem.title.casefold(), problem.number)
         if sort == "name" else (problem.number,),
     )
     return templates.TemplateResponse(
         request=request, name="problems.html",
-        context={"problems": ordered, "errors": errors, "sort": sort},
+        context={"problems": ordered, "errors": errors, "sort": sort,
+                 "tags": tags, "selected_tag": tag},
     )
 
 

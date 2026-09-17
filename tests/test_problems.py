@@ -105,3 +105,24 @@ def test_catalog_sorts_by_stable_number_and_rejects_collisions(tmp_path):
         assert list(problems) == ['two', 'thirty']
         assert len(errors) == 2
         assert all('duplicate number 10' in error for error in errors)
+
+
+def test_optional_tags_and_normalization(tmp_path):
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    path = tmp_path / 'tags.json'
+    data.pop('tags', None)
+    path.write_text(json.dumps(data))
+    assert load_problem(path).tags == []
+    data['tags'] = [' #其他 ', '其他', '#人类学']
+    path.write_text(json.dumps(data))
+    assert load_problem(path).tags == ['其他', '人类学']
+
+
+@pytest.mark.parametrize('tags', [[''], [' # '], [3], '其他'])
+def test_invalid_tags(tmp_path, tags):
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    data['tags'] = tags
+    path = tmp_path / 'bad-tags.json'
+    path.write_text(json.dumps(data))
+    with pytest.raises(ProblemError, match='tags'):
+        load_problem(path)

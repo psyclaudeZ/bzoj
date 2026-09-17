@@ -164,3 +164,34 @@ def test_home_sort_controls_and_name_order(tmp_path):
             assert positions == sorted(positions)
             assert f'href="/?sort={selected}" aria-current="true"' in response.text
             assert 'class="problem-number">10</span>' in response.text
+
+
+def test_tag_filters_preserve_sorting_and_encode_links(tmp_path):
+    import json
+    from html import unescape
+    from urllib.parse import urlencode
+    from bzoj.problems import EXAMPLES
+    data = json.loads((EXAMPLES / 'counter.json').read_text())
+    entries = [('zulu', 'Zulu', 1, ['其他']), ('alpha', 'Alpha', 2, ['其他', '人类学']),
+               ('third', 'Third', 3, ['人类学']), ('untagged', 'Untagged', 4, []),
+               ('special', 'Special', 5, ['a&b/#? <script>'])]
+    for slug, title, number, tags in entries:
+        (tmp_path / f'{slug}.json').write_text(json.dumps({**data, 'slug': slug, 'title': title, 'number': number, 'tags': tags}))
+    with patch('bzoj.problems.EXAMPLES', tmp_path), patch('bzoj.problems.PRIVATE', tmp_path / 'none'):
+        response = client.get('/', params={'tag': '其他', 'sort': 'name'})
+        assert response.status_code == 200
+        text = response.text
+        assert text.index('href="/problems/alpha"') < text.index('href="/problems/zulu"')
+        assert 'href="/problems/third"' not in text
+        assert 'href="/problems/untagged"' not in text
+        assert '2 problems' in text
+        assert '/?' + urlencode({'sort': 'number', 'tag': '其他'}) in unescape(text)
+        assert '/?' + urlencode({'sort': 'name', 'tag': '人类学'}) in unescape(text)
+        assert 'href="/?sort=name"' in text
+        assert 'aria-current="true">#其他' in text
+        assert 'href="/problems/untagged"' in client.get('/?sort=name').text
+        assert 'No problems match this tag.' in client.get('/', params={'tag': 'missing'}).text
+        special = client.get('/', params={'tag': entries[-1][3][0]})
+        assert 'href="/problems/special"' in special.text
+        assert '<script>' not in special.text
+        assert '/?' + urlencode({'sort': 'number', 'tag': entries[-1][3][0]}) in unescape(special.text)

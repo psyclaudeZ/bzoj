@@ -5,7 +5,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator
 
 ROOT = Path(__file__).resolve().parent.parent
 EXAMPLES = ROOT / "examples" / "problems"
@@ -27,11 +27,24 @@ class Problem(BaseModel):
     number: int = Field(gt=0)
     slug: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=80)
     title: str = Field(min_length=1)
+    tags: list[str] = Field(default_factory=list)
     statement: str = Field(min_length=1)
     constraints: list[str] = Field(default_factory=list)
     starter_code: str
     driver_code: str = Field(min_length=1)
     tests: list[TestCase] = Field(min_length=1, max_length=100)
+
+    @field_validator("tags")
+    @classmethod
+    def normalize_tags(cls, tags: list[str]) -> list[str]:
+        normalized = []
+        for tag in tags:
+            tag = tag.strip().lstrip("#").strip()
+            if not tag:
+                raise ValueError("Tags must not be blank.")
+            if tag not in normalized:
+                normalized.append(tag)
+        return normalized
 
 
 class ProblemError(ValueError):
