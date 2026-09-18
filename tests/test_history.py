@@ -92,3 +92,13 @@ def test_unexpected_judge_error_is_recorded():
         response = client.post(URL + '/submit', data={'source': SOLUTION})
     assert response.status_code == 502
     assert storage.list_submissions()[0]['status'] == 'Judge error'
+
+
+def test_refresh_does_not_resubmit_and_problem_scope_is_checked():
+    response = client.post(URL + '/submit', data={'source': SOLUTION}, follow_redirects=False)
+    assert response.status_code == 303
+    for _ in range(2):
+        assert client.get(response.headers['location']).status_code == 200
+    assert len(storage.list_submissions()) == 1
+    identity = storage.list_submissions()[0]['id']
+    assert client.get(f'/problems/counter?submission={identity}').status_code == 404

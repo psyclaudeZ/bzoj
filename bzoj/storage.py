@@ -52,8 +52,10 @@ def connection():
 
 
 def initialize() -> None:
-    with connection():
-        pass
+    with connection() as db:
+        interrupted = JudgeResult(status='Interrupted')
+        db.execute("UPDATE submissions SET status=?, result_json=? WHERE status='Running'",
+                   (interrupted.status, json.dumps(asdict(interrupted))))
 
 
 def create_submission(problem: Problem, source: str) -> int:

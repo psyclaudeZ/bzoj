@@ -68,3 +68,11 @@ def test_definition_hash_tracks_execution():
     problem = example()
     problem.tests[0].expected = 'changed'
     assert storage.definition_hash(problem) != original
+
+
+def test_restart_marks_unfinished_submissions_interrupted():
+    identity = storage.create_submission(example(), 'unfinished source')
+    storage.initialize()
+    record = storage.get_submission(identity)
+    assert record['status'] == record['result']['status'] == 'Interrupted'
+    assert storage.latest_source('hello-world') == 'unfinished source'

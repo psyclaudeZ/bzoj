@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markdown_it import MarkdownIt
@@ -76,8 +76,15 @@ def problem_page(request: Request, problem, source: str | None = None, **context
 
 
 @app.get("/problems/{slug}", response_class=HTMLResponse)
-def problem(request: Request, slug: str):
-    return problem_page(request, get_problem(slug), storage.latest_source(slug))
+def problem(request: Request, slug: str, submission: int | None = None):
+    current = get_problem(slug)
+    if submission is not None:
+        record = storage.get_submission(submission)
+        if record is None or record["problem_slug"] != slug:
+            raise HTTPException(404, "Submission not found for this problem.")
+        return problem_page(request, record["problem"], record["source"],
+                            result=record["result"], submission_id=submission)
+    return problem_page(request, current, storage.latest_source(slug))
 
 
 @app.get("/submissions", response_class=HTMLResponse)
@@ -142,10 +149,11 @@ async def submit(request: Request, slug: str):
                                 error="Code was saved, but saving its result failed.")
         response.status_code = 503
         return response
-    response = problem_page(request, problem, source, result=result, submission_id=submission_id)
     if result.status == "Judge error":
+        response = problem_page(request, problem, source, result=result, submission_id=submission_id)
         response.status_code = 502
-    return response
+        return response
+    return RedirectResponse(f"/problems/{slug}?submission={submission_id}", status_code=303)
 
 
 @app.get("/health")
