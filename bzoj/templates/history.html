@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Submission history{% endblock %}
+{% block content %}
+<main class="problem-list">
+  <div class="page-heading"><h1>Submissions</h1><a href="{{ '/problems/' ~ slug if slug else '/' }}">{{ 'Back to problem' if slug else 'Problems' }}</a></div>
+  <div class="problem-table">
+    {% for row in submissions %}
+    <a class="history-row" href="/submissions/{{ row.id }}">
+      <span><strong>#{{ row.id }} · {{ row.problem_title }}</strong><br><time class="muted" datetime="{{ row.created_at }}">{{ row.created_at[:19]|replace('T', ' ') }} UTC</time></span>
+      <span class="{{ 'success' if row.status == 'Accepted' else 'muted' }}">{{ row.status }} <span class="muted">· {{ row.duration_ms }} ms</span></span>
+    </a>
+    {% else %}<p class="empty-list">No submissions yet.</p>{% endfor %}
+  </div>
+  {% if older %}<p><a href="/submissions?{{ {'before': older}|urlencode }}{% if slug %}&amp;{{ {'problem': slug}|urlencode }}{% endif %}">Older submissions →</a></p>{% endif %}
+</main>
+{% endblock %}

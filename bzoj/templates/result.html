@@ -1,0 +1,21 @@
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+{% if result %}
+  <div class="result-summary" role="status">
+    <strong class="{{ 'success' if result.status == 'Accepted' else 'error' }}">{{ result.status }}</strong>
+    <span class="muted">{{ result.duration_ms }} ms</span>
+  </div>
+  {% if result.status == 'Output limit exceeded' %}<p class="muted">Output was truncated at 64 KiB. Execution stopped.</p>{% endif %}
+  {% for case in result.cases %}
+  <details class="case-result">
+    <summary>Test {{ case.number }}{{ ' · hidden' if case.hidden else '' }} — {{ case.status }}</summary>
+    {% if case.hidden %}<p class="muted">Hidden test details and output are not shown.</p>
+    {% elif 'actual' in case %}<pre class="output">Input: {{ case.input|tojson }}
+Expected: {{ case.expected|tojson }}
+Actual: {{ case.actual|tojson }}</pre>{% endif %}
+  </details>
+  {% endfor %}
+  <h3>stdout</h3><pre class="output">{{ result.stdout if result.stdout else '(no output)' }}</pre>
+  {% if result.stderr %}<h3>stderr</h3><pre class="output error">{{ result.stderr }}</pre>{% endif %}
+{% elif not error %}
+  <p class="empty-output">Submit your code to see its output here.</p>
+{% endif %}

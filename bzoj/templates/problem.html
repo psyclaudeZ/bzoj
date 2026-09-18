@@ -3,7 +3,7 @@
 {% block content %}
 <main class="workspace">
   <section class="panel statement" aria-labelledby="problem-title">
-    <div class="panel-heading"><span>Description</span><span class="muted">{{ problem.tests|length }} tests</span></div>
+    <div class="panel-heading"><span>Description</span><a href="/submissions?{{ {'problem': problem.slug}|urlencode }}">History</a></div>
     <div class="statement-content">
       <h1 id="problem-title">{{ problem.number }}. {{ problem.title }}</h1>
       {{ problem.statement|markdown }}
@@ -34,27 +34,8 @@ Expected: {{ example.expected|tojson }}</pre>
     <section class="results" aria-labelledby="result-title">
       <div class="panel-heading"><h2 id="result-title">Output</h2><span class="muted">5 s · 64 KiB limit</span></div>
       <div class="result-content">
-        {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-        {% if result %}
-          <div class="result-summary" role="status">
-            <strong class="{{ 'success' if result.status == 'Accepted' else 'error' }}">{{ result.status }}</strong>
-            <span class="muted">{{ result.duration_ms }} ms</span>
-          </div>
-          {% if result.status == 'Output limit exceeded' %}<p class="muted">Output was truncated at 64 KiB. Execution stopped.</p>{% endif %}
-          {% for case in result.cases %}
-          <details class="case-result">
-            <summary>Test {{ case.number }}{{ ' · hidden' if case.hidden else '' }} — {{ case.status }}</summary>
-            {% if case.hidden %}<p class="muted">Hidden test details and output are not shown.</p>
-            {% elif 'actual' in case %}<pre class="output">Input: {{ case.input|tojson }}
-Expected: {{ case.expected|tojson }}
-Actual: {{ case.actual|tojson }}</pre>{% endif %}
-          </details>
-          {% endfor %}
-          <h3>stdout</h3><pre class="output">{{ result.stdout if result.stdout else '(no output)' }}</pre>
-          {% if result.stderr %}<h3>stderr</h3><pre class="output error">{{ result.stderr }}</pre>{% endif %}
-        {% elif not error %}
-          <p class="empty-output">Submit your code to see its output here.</p>
-        {% endif %}
+        {% if submission_id %}<a class="submission-link" href="/submissions/{{ submission_id }}">Submission #{{ submission_id }}</a>{% endif %}
+        {% include "result.html" %}
       </div>
     </section>
   </section>

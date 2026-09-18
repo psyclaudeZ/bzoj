@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import logging
+import sqlite3
 from pathlib import Path
 from urllib.parse import parse_qs
 
@@ -15,6 +16,8 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from bzoj.runner import MAX_SOURCE_BYTES
 from bzoj.judge import judge
 from bzoj.problems import catalog
+from bzoj import storage
+from bzoj.judge import JudgeResult
 
 ROOT = Path(__file__).parent
 templates = Jinja2Templates(directory=ROOT / "templates")
@@ -25,6 +28,7 @@ templates.env.filters["markdown"] = lambda text: Markup(markdown.render(text))
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await run_in_threadpool(storage.initialize)
     logging.getLogger("uvicorn.error").warning(
         "Local execution enabled: submitted Python runs with your permissions. "
         "Timeouts and output limits are not a security sandbox."
@@ -73,7 +77,26 @@ def problem_page(request: Request, problem, source: str | None = None, **context
 
 @app.get("/problems/{slug}", response_class=HTMLResponse)
 def problem(request: Request, slug: str):
-    return problem_page(request, get_problem(slug))
+    return problem_page(request, get_problem(slug), storage.latest_source(slug))
+
+
+@app.get("/submissions", response_class=HTMLResponse)
+def history(request: Request, problem: str | None = None, before: int | None = None):
+    rows = storage.list_submissions(problem, before)
+    return templates.TemplateResponse(request=request, name="history.html", context={
+        "submissions": rows[:50], "slug": problem,
+        "older": rows[49]["id"] if len(rows) > 50 else None,
+    })
+
+
+@app.get("/submissions/{submission_id}", response_class=HTMLResponse)
+def submission_detail(request: Request, submission_id: int):
+    record = storage.get_submission(submission_id)
+    if record is None:
+        raise HTTPException(404, "Submission not found.")
+    return templates.TemplateResponse(request=request, name="submission.html", context={
+        "submission": record, "result": record["result"],
+    })
 
 
 @app.post("/problems/{slug}/submit", response_class=HTMLResponse)
@@ -101,8 +124,25 @@ async def submit(request: Request, slug: str):
     if len(source.encode("utf-8")) > MAX_SOURCE_BYTES:
         raise HTTPException(413, "Source must be at most 64 KiB.")
     problem = get_problem(slug)
-    result = await run_in_threadpool(judge, problem, source)
-    response = problem_page(request, problem, source, result=result)
+    try:
+        submission_id = await run_in_threadpool(storage.create_submission, problem, source)
+    except sqlite3.Error:
+        response = problem_page(request, problem, source, error="Could not save the submission. Code was not run.")
+        response.status_code = 503
+        return response
+    try:
+        result = await run_in_threadpool(judge, problem, source)
+    except Exception:
+        logging.getLogger("uvicorn.error").exception("Submission execution failed")
+        result = JudgeResult(status="Judge error", stderr="The judge could not complete this submission.")
+    try:
+        await run_in_threadpool(storage.finish_submission, submission_id, result)
+    except sqlite3.Error:
+        response = problem_page(request, problem, source, result=result,
+                                error="Code was saved, but saving its result failed.")
+        response.status_code = 503
+        return response
+    response = problem_page(request, problem, source, result=result, submission_id=submission_id)
     if result.status == "Judge error":
         response.status_code = 502
     return response

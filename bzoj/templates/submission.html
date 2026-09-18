@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Submission #{{ submission.id }}{% endblock %}
+{% block content %}
+<main class="problem-list">
+  <div class="page-heading"><h1>Submission #{{ submission.id }}</h1><a href="/submissions?{{ {'problem': submission.problem_slug}|urlencode }}">History</a></div>
+  <p><a href="/problems/{{ submission.problem_slug }}">{{ submission.problem.number }}. {{ submission.problem.title }}</a> · <time class="muted" datetime="{{ submission.created_at }}">{{ submission.created_at[:19]|replace('T', ' ') }} UTC</time></p>
+  <section class="panel saved-submission" aria-label="Submitted code">
+    <div class="panel-heading">Code</div>
+    <pre class="saved-code">{{ submission.source }}</pre>
+  </section>
+  <section class="panel saved-submission" aria-label="Submission result">
+    <div class="panel-heading">Result</div>
+    <div class="result-content">{% include "result.html" %}</div>
+  </section>
+</main>
+{% endblock %}

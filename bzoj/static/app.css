@@ -83,3 +83,9 @@ button span { margin-left: 12px; }
   .statement-content { padding: 20px; }
   .editor-panel { min-height: 620px; grid-template-rows: 380px minmax(220px, auto); }
 }
+.history-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+.history-row:last-child { border-bottom: 0; }
+.history-row:hover { background: #f4f7ff; }
+.saved-submission { margin-top: 20px; }
+.saved-code { margin: 0; padding: 20px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.submission-link { display: inline-block; margin-bottom: 12px; color: var(--accent); font-size: 12px; }
