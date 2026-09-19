@@ -2,9 +2,12 @@
 {% block title %}{{ problem.number }}. {{ problem.title }}{% endblock %}
 {% block content %}
 <main class="workspace">
-  <section class="panel statement" aria-labelledby="problem-title">
-    <div class="panel-heading"><span>Description</span><a href="/submissions?{{ {'problem': problem.slug}|urlencode }}">History</a></div>
-    <div class="statement-content">
+  <section class="panel statement" aria-label="Problem details">
+    <div class="panel-heading statement-tabs" role="tablist" aria-label="Problem details">
+      <button type="button" id="description-tab" role="tab" aria-selected="true" aria-controls="description-panel">Description</button>
+      <button type="button" id="history-tab" role="tab" aria-selected="false" aria-controls="history-panel" tabindex="-1" data-history-url="/problems/{{ problem.slug }}/history">History</button>
+    </div>
+    <div class="statement-content" id="description-panel" role="tabpanel" aria-labelledby="description-tab">
       <h1 id="problem-title">{{ problem.number }}. {{ problem.title }}</h1>
       {{ problem.statement|markdown }}
       {% for example in examples %}
@@ -21,6 +24,7 @@ Expected: {{ example.expected|tojson }}</pre>
       </div>
       {% endif %}
     </div>
+    <div id="history-panel" role="tabpanel" aria-labelledby="history-tab" hidden></div>
   </section>
   <section class="panel editor-panel" aria-labelledby="editor-title">
     <form method="post" action="/problems/{{ problem.slug }}/submit" class="editor-form">
@@ -34,10 +38,11 @@ Expected: {{ example.expected|tojson }}</pre>
     <section class="results" aria-labelledby="result-title">
       <div class="panel-heading"><h2 id="result-title">Output</h2><span class="muted">5 s · 64 KiB limit</span></div>
       <div class="result-content">
-        {% if submission_id %}<a class="submission-link" href="/submissions/{{ submission_id }}">Submission #{{ submission_id }}</a>{% endif %}
+        {% if submission_id %}<a class="submission-link" data-history-link href="/problems/{{ problem.slug }}/history/{{ submission_id }}">Submission #{{ submission_id }}</a>{% endif %}
         {% include "result.html" %}
       </div>
     </section>
   </section>
 </main>
+<script src="{{ url_for('static', path='/problem.js') }}" defer></script>
 {% endblock %}

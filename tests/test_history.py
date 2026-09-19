@@ -102,3 +102,25 @@ def test_refresh_does_not_resubmit_and_problem_scope_is_checked():
     assert len(storage.list_submissions()) == 1
     identity = storage.list_submissions()[0]['id']
     assert client.get(f'/problems/counter?submission={identity}').status_code == 404
+
+
+def test_history_panels_are_scoped_and_do_not_change_latest_source():
+    client.post(URL + '/submit', data={'source': SOLUTION})
+    first = storage.list_submissions()[0]['id']
+    client.post(URL + '/submit', data={'source': '# newer draft'})
+    page = client.get(URL)
+    assert 'role="tab" aria-selected="true"' in page.text
+    assert 'aria-controls="history-panel"' in page.text
+    assert '/static/problem.js' in page.text
+    panel = client.get(URL + '/history')
+    assert panel.status_code == 200
+    assert f'href="{URL}/history/{first}"' in panel.text
+    assert '<html' not in panel.text
+    detail = client.get(f'{URL}/history/{first}')
+    assert detail.status_code == 200
+    assert 'hello &#39; + name' in detail.text
+    assert 'hello Python' not in detail.text
+    assert storage.latest_source('hello-world') == '# newer draft'
+    assert client.get(f'/problems/counter/history/{first}').status_code == 404
+    assert client.get(URL + '/history/9999').status_code == 404
+    assert 'No submissions yet.' in client.get('/problems/counter/history').text

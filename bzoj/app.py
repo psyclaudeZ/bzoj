@@ -96,6 +96,26 @@ def history(request: Request, problem: str | None = None, before: int | None = N
     })
 
 
+@app.get("/problems/{slug}/history", response_class=HTMLResponse)
+def problem_history(request: Request, slug: str, before: int | None = None):
+    get_problem(slug)
+    rows = storage.list_submissions(slug, before)
+    return templates.TemplateResponse(request=request, name="history_panel.html", context={
+        "slug": slug, "submissions": rows[:50],
+        "older": rows[49]["id"] if len(rows) > 50 else None,
+    })
+
+
+@app.get("/problems/{slug}/history/{submission_id}", response_class=HTMLResponse)
+def problem_history_detail(request: Request, slug: str, submission_id: int):
+    record = storage.get_submission(submission_id)
+    if record is None or record["problem_slug"] != slug:
+        raise HTTPException(404, "Submission not found for this problem.")
+    return templates.TemplateResponse(request=request, name="history_panel.html", context={
+        "slug": slug, "submission": record, "result": record["result"],
+    })
+
+
 @app.get("/submissions/{submission_id}", response_class=HTMLResponse)
 def submission_detail(request: Request, submission_id: int):
     record = storage.get_submission(submission_id)
