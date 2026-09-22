@@ -16,3 +16,6 @@ htmlcov/
 *.egg-info/
 build/
 dist/
+
+# Editor build dependencies
+node_modules/
