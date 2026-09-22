@@ -32,6 +32,13 @@ Expected: {{ example.expected|tojson }}</pre>
         <label id="editor-title" for="source">Code</label>
         <div class="editor-actions"><span class="language">Python 3.14</span><button type="submit">Submit <span aria-hidden="true">→</span></button></div>
       </div>
+      {% if parent %}
+      <div class="parent-import">
+        <a href="/problems/{{ parent.slug }}">↳ {{ parent.number }}. {{ parent.title }}</a>
+        <button type="button" id="import-parent" data-url="/problems/{{ problem.slug }}/parent-submission" hidden>Import parent submission</button>
+        <span id="import-status" role="status" hidden></span>
+      </div>
+      {% endif %}
       <div class="code-editor">
         <pre id="line-numbers" class="line-numbers" aria-hidden="true">{% for number in range(1, source.split('\n')|length + 1) %}{{ number }}{{ '\n' }}{% endfor %}</pre>
         <textarea id="source" name="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off">{{ source }}</textarea>

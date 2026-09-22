@@ -2,7 +2,7 @@ import {EditorState} from '@codemirror/state';
 import {EditorView, drawSelection, highlightSpecialChars, keymap, lineNumbers} from '@codemirror/view';
 import {bracketMatching, defaultHighlightStyle, indentUnit, syntaxHighlighting} from '@codemirror/language';
 import {python} from '@codemirror/lang-python';
-import {defaultKeymap, history, historyKeymap, indentWithTab} from '@codemirror/commands';
+import {defaultKeymap, history, historyKeymap, indentWithTab, isolateHistory} from '@codemirror/commands';
 
 const source = document.getElementById('source');
 const view = new EditorView({
@@ -51,3 +51,33 @@ window.addEventListener('pageshow', () => {
     view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source.value}});
   }
 });
+
+const importButton = document.getElementById('import-parent');
+if (importButton) {
+  importButton.hidden = false;
+  const status = document.getElementById('import-status');
+  importButton.addEventListener('click', async () => {
+    const originalDoc = view.state.doc;
+    importButton.disabled = true;
+    status.hidden = true;
+    try {
+      const response = await fetch(importButton.dataset.url, {cache: 'no-store'});
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || 'Could not import the parent submission.');
+      if (view.state.doc !== originalDoc) throw new Error('Code changed while loading. Click import again to replace it.');
+      view.dispatch({
+        changes: {from: 0, to: view.state.doc.length, insert: result.source},
+        selection: {anchor: 0},
+        annotations: isolateHistory.of('full'),
+        scrollIntoView: true,
+      });
+      view.focus();
+    } catch (error) {
+      status.textContent = error instanceof TypeError || error instanceof SyntaxError
+        ? 'Could not import the parent submission. Try again.' : error.message;
+      status.hidden = false;
+    } finally {
+      importButton.disabled = false;
+    }
+  });
+}

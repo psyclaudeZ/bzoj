@@ -28,6 +28,7 @@ class Problem(BaseModel):
     slug: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=80)
     title: str = Field(min_length=1)
     tags: list[str] = Field(default_factory=list)
+    follow_up_of: str | None = Field(default=None, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=80)
     statement: str = Field(min_length=1)
     constraints: list[str] = Field(default_factory=list)
     starter_code: str
@@ -94,4 +95,16 @@ def catalog() -> tuple[dict[str, Problem], list[str]]:
             errors.append(f"{path.name}: {', '.join(conflicts)}.")
         else:
             problems[problem.slug] = problem
-    return problems, errors
+    invalid = set()
+    for slug in problems:
+        seen = set()
+        parent = slug
+        while parent is not None:
+            if parent in seen or parent not in problems:
+                reason = "cycle" if parent in seen else f"missing parent '{parent}'"
+                errors.append(f"{slug}: invalid follow_up_of chain ({reason}).")
+                invalid.add(slug)
+                break
+            seen.add(parent)
+            parent = problems[parent].follow_up_of
+    return {slug: problem for slug, problem in problems.items() if slug not in invalid}, errors

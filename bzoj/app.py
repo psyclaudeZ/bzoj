@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markdown_it import MarkdownIt
@@ -68,9 +68,13 @@ def get_problem(slug: str):
 
 
 def problem_page(request: Request, problem, source: str | None = None, **context):
+    problems, _ = catalog()
+    current = problems.get(problem.slug)
+    parent = problems.get(current.follow_up_of) if current else None
     return templates.TemplateResponse(
         request=request, name="problem.html", context={
             "problem": problem,
+            "parent": parent,
             "examples": [test for test in problem.tests if not test.hidden],
             "source": problem.starter_code if source is None else source, **context,
         }
@@ -87,6 +91,20 @@ def problem(request: Request, slug: str, submission: int | None = None):
         return problem_page(request, record["problem"], record["source"],
                             result=record["result"], submission_id=submission)
     return problem_page(request, current, storage.latest_source(slug))
+
+
+@app.get("/problems/{slug}/parent-submission")
+def parent_submission(slug: str):
+    current = get_problem(slug)
+    if current.follow_up_of is None:
+        raise HTTPException(404, "This problem has no parent.")
+    try:
+        source = storage.latest_source(current.follow_up_of)
+    except sqlite3.Error:
+        raise HTTPException(503, "Could not load the parent submission. Try again.") from None
+    if source is None:
+        raise HTTPException(404, "No submissions for the parent problem yet.")
+    return JSONResponse({"source": source}, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/submissions", response_class=HTMLResponse)
