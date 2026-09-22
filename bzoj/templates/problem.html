@@ -26,22 +26,25 @@ Expected: {{ example.expected|tojson }}</pre>
     </div>
     <div id="history-panel" role="tabpanel" aria-labelledby="history-tab" hidden></div>
   </section>
-  <section class="panel editor-panel" aria-labelledby="editor-title">
+  <section class="panel editor-panel{% if result or error %} has-results{% endif %}" aria-labelledby="editor-title">
     <form method="post" action="/problems/{{ problem.slug }}/submit" class="editor-form">
-      <div class="panel-heading"><label id="editor-title" for="source">Code</label><span class="language">Python 3.14</span></div>
-      <textarea id="source" name="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off">{{ source }}</textarea>
-      <div class="editor-footer">
-        <button type="submit">Submit <span aria-hidden="true">→</span></button>
+      <div class="panel-heading editor-heading">
+        <label id="editor-title" for="source">Code</label>
+        <div class="editor-actions"><span class="language">Python 3.14</span><button type="submit">Submit <span aria-hidden="true">→</span></button></div>
+      </div>
+      <div class="code-editor">
+        <pre id="line-numbers" class="line-numbers" aria-hidden="true">{% for number in range(1, source.split('\n')|length + 1) %}{{ number }}{{ '\n' }}{% endfor %}</pre>
+        <textarea id="source" name="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off">{{ source }}</textarea>
       </div>
     </form>
-    <section class="results" aria-labelledby="result-title">
+    {% if result or error %}<section class="results" aria-labelledby="result-title">
       <div class="panel-heading"><h2 id="result-title">Output</h2><span class="muted">5 s · 64 KiB limit</span></div>
       <div class="result-content">
         {% if submission_id %}<a class="submission-link" data-history-link href="/problems/{{ problem.slug }}/history/{{ submission_id }}">Submission #{{ submission_id }}</a>{% endif %}
         {% include "result.html" %}
       </div>
-    </section>
+    </section>{% endif %}
   </section>
 </main>
-<script src="{{ url_for('static', path='/problem.js') }}" defer></script>
+<script src="{{ url_for('static', path='/problem.js') }}?v={{ script_version() }}" defer></script>
 {% endblock %}

@@ -3,6 +3,18 @@ const historyTab = document.getElementById('history-tab');
 const historyPanel = document.getElementById('history-panel');
 let pendingHistory;
 
+const source = document.getElementById('source');
+const lineNumbers = document.getElementById('line-numbers');
+function updateLineNumbers() {
+  const count = source.value.split('\n').length;
+  lineNumbers.textContent = Array.from({length: count}, (_, index) => index + 1).join('\n') + '\n';
+  lineNumbers.scrollTop = source.scrollTop;
+}
+source.addEventListener('input', updateLineNumbers);
+source.addEventListener('scroll', () => { lineNumbers.scrollTop = source.scrollTop; });
+window.addEventListener('pageshow', updateLineNumbers);
+updateLineNumbers();
+
 function activateTab(selected) {
   for (const tab of tabs) {
     const active = tab === selected;
