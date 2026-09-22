@@ -63,15 +63,21 @@ code { background: #f0f2f5; padding: 2px 5px; border-radius: 3px; }
 .editor-panel.has-results { grid-template-rows: minmax(280px, 1fr) minmax(180px, .6fr); }
 .editor-form { display: flex; flex-direction: column; min-height: 0; }
 .editor-heading { flex-shrink: 0; padding-top: 8px; padding-bottom: 8px; }
-.editor-actions { display: flex; align-items: center; gap: 16px; }
-.editor-actions button { padding: 6px 12px; font-size: 12px; }
-.parent-import { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; padding: 8px 20px; border-bottom: 1px solid var(--border); font-size: 12px; }
-.parent-import a { color: var(--muted); overflow-wrap: anywhere; }
-.parent-import a:hover { color: var(--accent); }
-.parent-import button { padding: 0; background: none; color: var(--muted); font-size: inherit; }
-.parent-import button:hover { color: var(--accent); }
-.parent-import button:disabled { opacity: .5; cursor: wait; }
-#import-status { flex-basis: 100%; color: var(--muted); }
+.editor-actions { display: flex; align-items: center; gap: 4px; }
+.editor-actions .language { margin-right: 12px; }
+.editor-actions .editor-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; background: none; color: var(--muted); }
+.editor-actions .editor-icon[hidden] { display: none; }
+.editor-heading { position: relative; z-index: 2; }
+.editor-actions .editor-icon { position: relative; }
+.editor-icon .editor-tooltip { position: absolute; top: 100%; right: 0; width: max-content; max-width: min(240px, 65vw); margin: 0; padding: 8px 10px; border-radius: 5px; background: #242b35; color: white; font-size: 12px; font-weight: 400; line-height: 1.5; white-space: normal; text-align: left; visibility: hidden; opacity: 0; }
+.editor-icon:hover .editor-tooltip, .editor-icon:focus-visible .editor-tooltip { visibility: visible; opacity: 1; }
+.editor-icon svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.editor-actions .editor-icon:hover { color: var(--accent); }
+.editor-actions .submit-icon { color: #227454; }
+.editor-actions .submit-icon:hover { color: #145337; }
+.submit-icon svg { fill: currentColor; stroke-width: 1.2; }
+.editor-actions .editor-icon:disabled { opacity: .5; cursor: wait; }
+#import-status { padding: 8px 20px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 12px; }
 .code-editor { display: flex; flex: 1; min-height: 0; overflow: hidden; background: #fdfdfe; }
 .line-numbers { margin: 0; padding: 20px 12px; min-width: 48px; height: 100%; flex-shrink: 0; overflow: hidden; text-align: right; color: #8993a1; border-right: 1px solid var(--border); line-height: 1.8; user-select: none; }
 .language { color: var(--muted); font-weight: 400; font-size: 12px; }
