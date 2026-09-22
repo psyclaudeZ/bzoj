@@ -46,5 +46,6 @@ Expected: {{ example.expected|tojson }}</pre>
     </section>{% endif %}
   </section>
 </main>
+<script src="{{ url_for('static', path='/editor.bundle.js') }}?v={{ editor_version() }}" defer></script>
 <script src="{{ url_for('static', path='/problem.js') }}?v={{ script_version() }}" defer></script>
 {% endblock %}

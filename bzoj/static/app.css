@@ -12,7 +12,7 @@
 body { margin: 0; font-size: 14px; line-height: 1.6; }
 a { color: inherit; text-decoration: none; }
 a:hover { color: var(--accent); }
-a:focus-visible, button:focus-visible, textarea:focus-visible { outline: 3px solid #739df3; outline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 3px solid #739df3; outline-offset: 3px; }
 .site-header { height: 64px; padding: 0 28px; display: flex; align-items: center; gap: 48px; border-bottom: 1px solid var(--border); background: white; }
 .brand { font-size: 18px; font-weight: 750; letter-spacing: -.5px; }
 nav a { display: block; padding: 20px 0; }
@@ -69,7 +69,8 @@ code { background: #f0f2f5; padding: 2px 5px; border-radius: 3px; }
 .line-numbers { margin: 0; padding: 20px 12px; min-width: 48px; height: 100%; flex-shrink: 0; overflow: hidden; text-align: right; color: #8993a1; border-right: 1px solid var(--border); line-height: 1.8; user-select: none; }
 .language { color: var(--muted); font-weight: 400; font-size: 12px; }
 textarea { display: block; width: 100%; height: 100%; flex: 1; min-width: 0; min-height: 0; resize: none; border: 0; padding: 20px 16px; line-height: 1.8; color: #233e69; background: #fdfdfe; tab-size: 4; border-radius: 0; }
-textarea:focus-visible { outline-offset: -3px; }
+textarea:focus-visible { outline: none; }
+.code-editor [hidden] { display: none; }
 button { background: var(--accent); color: white; border: 0; border-radius: 5px; padding: 9px 18px; font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
 button:hover { color: #dbe7ff; }
 button span { margin-left: 12px; }
