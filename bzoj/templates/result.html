@@ -16,6 +16,4 @@ Actual: {{ case.actual|tojson }}</pre>{% endif %}
   {% endfor %}
   <h3>stdout</h3><pre class="output">{{ result.stdout if result.stdout else '(no output)' }}</pre>
   {% if result.stderr %}<h3>stderr</h3><pre class="output error">{{ result.stderr }}</pre>{% endif %}
-{% elif not error %}
-  <p class="empty-output">Submit your code to see its output here.</p>
 {% endif %}

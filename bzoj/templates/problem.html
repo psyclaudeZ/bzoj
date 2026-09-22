@@ -29,9 +29,8 @@ Expected: {{ example.expected|tojson }}</pre>
   <section class="panel editor-panel" aria-labelledby="editor-title">
     <form method="post" action="/problems/{{ problem.slug }}/submit" class="editor-form">
       <div class="panel-heading"><label id="editor-title" for="source">Code</label><span class="language">Python 3.14</span></div>
-      <textarea id="source" name="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-describedby="execution-note">{{ source }}</textarea>
+      <textarea id="source" name="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off">{{ source }}</textarea>
       <div class="editor-footer">
-        <p id="execution-note">Runs locally with your permissions. Trusted code only.</p>
         <button type="submit">Submit <span aria-hidden="true">→</span></button>
       </div>
     </form>

@@ -64,8 +64,7 @@ code { background: #f0f2f5; padding: 2px 5px; border-radius: 3px; }
 .language { color: var(--muted); font-weight: 400; font-size: 12px; }
 textarea { display: block; width: 100%; flex: 1; min-height: 180px; resize: none; border: 0; padding: 20px; line-height: 1.8; color: #233e69; background: #fdfdfe; tab-size: 4; border-radius: 0; }
 textarea:focus-visible { outline-offset: -3px; }
-.editor-footer { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--border); }
-.editor-footer p { color: var(--muted); font-size: 11px; margin: 0; max-width: 260px; }
+.editor-footer { padding: 12px 16px; display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid var(--border); }
 button { background: var(--accent); color: white; border: 0; border-radius: 5px; padding: 9px 18px; font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
 button:hover { color: #dbe7ff; }
 button span { margin-left: 12px; }
@@ -74,7 +73,6 @@ button span { margin-left: 12px; }
 .result-summary { display: flex; justify-content: space-between; gap: 16px; }
 .success { color: #227454; }
 .error { color: #b52e3a; }
-.empty-output { color: var(--muted); margin: 16px 0; }
 .result-content h3 { font-size: 11px; color: var(--muted); font-weight: 500; margin: 16px 0 6px; }
 .output { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .example { white-space: pre-wrap; overflow-wrap: anywhere; }
