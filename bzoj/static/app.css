@@ -73,9 +73,9 @@ code { background: #f0f2f5; padding: 2px 5px; border-radius: 3px; }
 .editor-icon:hover .editor-tooltip, .editor-icon:focus-visible .editor-tooltip { visibility: visible; opacity: 1; }
 .editor-icon svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .editor-actions .editor-icon:hover { color: var(--accent); }
-.editor-actions .submit-icon { color: #227454; }
-.editor-actions .submit-icon:hover { color: #145337; }
-.submit-icon svg { fill: currentColor; stroke-width: 1.2; }
+.editor-actions .submit-icon { width: 32px; height: 28px; margin-left: 8px; background: #227454; color: white; border-radius: 5px; }
+.submit-icon svg { width: 18px; height: 18px; stroke-width: 2; }
+.editor-actions .submit-icon:hover { color: #b9f5d6; }
 .editor-actions .editor-icon:disabled { opacity: .5; cursor: wait; }
 #import-status { padding: 8px 20px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 12px; }
 .code-editor { display: flex; flex: 1; min-height: 0; overflow: hidden; background: #fdfdfe; }

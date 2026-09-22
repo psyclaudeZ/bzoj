@@ -146,8 +146,7 @@ def submission_detail(request: Request, submission_id: int):
     })
 
 
-@app.post("/problems/{slug}/submit", response_class=HTMLResponse)
-async def submit(request: Request, slug: str):
+async def read_source(request: Request) -> str:
     # Prevent unrelated websites from posting Python into this local service.
     origin = request.headers.get("origin")
     if (origin is not None and origin != str(request.base_url).rstrip("/")) or (
@@ -170,6 +169,31 @@ async def submit(request: Request, slug: str):
     source = fields["source"][0]
     if len(source.encode("utf-8")) > MAX_SOURCE_BYTES:
         raise HTTPException(413, "Source must be at most 64 KiB.")
+    return source
+
+
+@app.post("/problems/{slug}/test", response_class=HTMLResponse)
+async def test_samples(request: Request, slug: str):
+    source = await read_source(request)
+    problem = get_problem(slug)
+    samples = [case for case in problem.tests if not case.hidden]
+    if not samples:
+        return problem_page(request, problem, source, sample_run=True,
+                            error="This problem has no sample inputs.")
+    try:
+        result = await run_in_threadpool(judge, problem.model_copy(update={"tests": samples}), source)
+    except Exception:
+        logging.getLogger("uvicorn.error").exception("Sample execution failed")
+        result = JudgeResult(status="Judge error", stderr="The judge could not complete this test run.")
+    response = problem_page(request, problem, source, result=result, sample_run=True)
+    if result.status == "Judge error":
+        response.status_code = 502
+    return response
+
+
+@app.post("/problems/{slug}/submit", response_class=HTMLResponse)
+async def submit(request: Request, slug: str):
+    source = await read_source(request)
     problem = get_problem(slug)
     try:
         submission_id = await run_in_threadpool(storage.create_submission, problem, source)

@@ -1,13 +1,13 @@
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 {% if result %}
   <div class="result-summary" role="status">
-    <strong class="{{ 'success' if result.status == 'Accepted' else 'error' }}">{{ result.status }}</strong>
+    <strong class="{{ 'success' if result.status == 'Accepted' else 'error' }}">{{ 'Samples passed' if sample_run and result.status == 'Accepted' else result.status }}</strong>
     <span class="muted">{{ result.duration_ms }} ms</span>
   </div>
   {% if result.status == 'Output limit exceeded' %}<p class="muted">Output was truncated at 64 KiB. Execution stopped.</p>{% endif %}
   {% for case in result.cases %}
   <details class="case-result">
-    <summary>Test {{ case.number }}{{ ' · hidden' if case.hidden else '' }} — {{ case.status }}</summary>
+    <summary>{{ 'Sample' if sample_run else 'Test' }} {{ case.number }}{{ ' · hidden' if case.hidden else '' }} — {{ case.status }}</summary>
     {% if case.hidden %}<p class="muted">Hidden test details and output are not shown.</p>
     {% elif 'actual' in case %}<pre class="output">Input: {{ case.input|tojson }}
 Expected: {{ case.expected|tojson }}

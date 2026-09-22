@@ -38,8 +38,12 @@ Expected: {{ example.expected|tojson }}</pre>
             <span class="editor-tooltip" id="import-tip" role="tooltip">Replace code with your latest submission to #{{ parent.number }}. Undo to restore.</span>
           </button>
           {% endif %}
-          <button type="submit" class="editor-icon submit-icon" aria-label="Submit" aria-describedby="submit-tip">
+          <button type="submit" formaction="/problems/{{ problem.slug }}/test" class="editor-icon" aria-label="Test" aria-describedby="test-tip">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 5 11 7-11 7Z"/></svg>
+            <span class="editor-tooltip" id="test-tip" role="tooltip">Run sample inputs without saving a submission.</span>
+          </button>
+          <button type="submit" class="editor-icon submit-icon" aria-label="Submit" aria-describedby="submit-tip">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 16.5a5 5 0 0 1 .9-9.7 7 7 0 0 1 13.6 1.7A4.5 4.5 0 0 1 20 17M12 21V11m-4 4 4-4 4 4"/></svg>
             <span class="editor-tooltip" id="submit-tip" role="tooltip">Submit code and run all tests.</span>
           </button>
         </div>
@@ -53,7 +57,7 @@ Expected: {{ example.expected|tojson }}</pre>
       </div>
     </form>
     {% if result or error %}<section class="results" aria-labelledby="result-title">
-      <div class="panel-heading"><h2 id="result-title">Output</h2><span class="muted">5 s · 64 KiB limit</span></div>
+      <div class="panel-heading"><h2 id="result-title">{{ 'Sample results' if sample_run else 'Output' }}</h2><span class="muted">5 s · 64 KiB limit</span></div>
       <div class="result-content">
         {% if submission_id %}<a class="submission-link" data-history-link href="/problems/{{ problem.slug }}/history/{{ submission_id }}">Submission #{{ submission_id }}</a>{% endif %}
         {% include "result.html" %}
