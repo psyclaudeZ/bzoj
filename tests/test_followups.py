@@ -62,14 +62,14 @@ def test_import_is_latest_read_only_and_scoped(definitions):
     assert len(storage.list_submissions()) == 3
     assert storage.latest_source('child') == '# child draft'
     assert 'id="import-parent"' in client.get('/problems/child').text
-    assert 'id="import-parent"' not in client.get('/problems/parent').text
+    assert 'id="import-parent" disabled' in client.get('/problems/parent').text
     assert client.get('/problems/parent/parent-submission').status_code == 404
     assert client.get('/problems/missing/parent-submission').status_code == 404
     storage.create_submission(parent, '')
     assert client.get('/problems/child/parent-submission').json() == {'source': ''}
     # Current metadata governs imports, including when viewing an old submission.
     definitions('child', 2)
-    assert 'id="import-parent"' not in client.get(f'/problems/child?submission={child_id}').text
+    assert 'id="import-parent" disabled' in client.get(f'/problems/child?submission={child_id}').text
     assert client.get('/problems/child/parent-submission').status_code == 404
 
 

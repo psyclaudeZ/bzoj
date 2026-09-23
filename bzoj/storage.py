@@ -89,6 +89,12 @@ def get_submission(submission_id: int) -> dict | None:
     return record
 
 
+def accepted_slugs() -> set[str]:
+    with connection() as db:
+        rows = db.execute("SELECT DISTINCT problem_slug FROM submissions WHERE status='Accepted'").fetchall()
+    return {row['problem_slug'] for row in rows}
+
+
 def latest_source(slug: str) -> str | None:
     with connection() as db:
         row = db.execute('SELECT source FROM submissions WHERE problem_slug=? ORDER BY id DESC LIMIT 1',

@@ -9,6 +9,27 @@ client = TestClient(app, base_url="http://127.0.0.1:8000")
 SUBMIT = "/problems/hello-world/submit"
 
 
+def test_catalog_marks_any_accepted_submission():
+    from bzoj import storage
+    from bzoj.app import get_problem
+    from bzoj.judge import JudgeResult
+
+    assert storage.accepted_slugs() == set()
+    assert 'aria-label="Accepted"' not in client.get('/').text
+    problem = get_problem('hello-world')
+    accepted = storage.create_submission(problem, '# accepted')
+    storage.finish_submission(accepted, JudgeResult(status='Accepted'))
+    failed = storage.create_submission(problem, '# later failure')
+    storage.finish_submission(failed, JudgeResult(status='Wrong answer'))
+    storage.create_submission(get_problem('counter'), '# still running')
+    assert storage.accepted_slugs() == {'hello-world'}
+    for url in ('/', '/?sort=name', '/?tag=其他'):
+        page = client.get(url)
+        assert page.status_code == 200
+        assert page.text.count('aria-label="Accepted"') == 1
+        assert 'aria-label="Not accepted"' in page.text
+
+
 def test_problem_list_and_editor() -> None:
     home = client.get("/")
     assert home.status_code == 200

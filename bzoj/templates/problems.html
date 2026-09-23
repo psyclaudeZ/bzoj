@@ -16,6 +16,7 @@
   {% endif %}
   <div class="problem-table">
     <div class="table-heading">
+      <span class="problem-status">Status</span>
       <span>Problem</span>
       <div class="sort-control" role="group" aria-label="Sort problems">
         <span>Sort by</span>
@@ -25,6 +26,9 @@
     </div>
     {% for problem in problems %}
     <div class="problem-row">
+      <span class="problem-status" role="img" aria-label="{{ 'Accepted' if problem.slug in accepted_slugs else 'Not accepted' }}" title="{{ 'Accepted' if problem.slug in accepted_slugs else 'Not accepted' }}">
+        {% if problem.slug in accepted_slugs %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>{% endif %}
+      </span>
       <a class="problem-link" href="/problems/{{ problem.slug }}"><span class="problem-number">{{ problem.number }}</span><strong>{{ problem.title }}</strong></a>
       {% if problem.tags %}<div class="problem-tags">
         {% for tag in problem.tags %}<a class="tag" href="/?{{ {'sort': sort, 'tag': tag}|urlencode }}">#{{ tag }}</a>{% endfor %}

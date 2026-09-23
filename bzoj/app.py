@@ -56,7 +56,7 @@ def home(request: Request, sort: str = "number", tag: str = ""):
     return templates.TemplateResponse(
         request=request, name="problems.html",
         context={"problems": ordered, "errors": errors, "sort": sort,
-                 "tags": tags, "selected_tag": tag},
+                 "tags": tags, "selected_tag": tag, "accepted_slugs": storage.accepted_slugs()},
     )
 
 

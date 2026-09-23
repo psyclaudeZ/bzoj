@@ -53,7 +53,7 @@ window.addEventListener('pageshow', () => {
 });
 
 const importButton = document.getElementById('import-parent');
-if (importButton) {
+if (importButton?.dataset.url) {
   importButton.hidden = false;
   const status = document.getElementById('import-status');
   importButton.addEventListener('click', async () => {

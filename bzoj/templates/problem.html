@@ -32,12 +32,10 @@ Expected: {{ example.expected|tojson }}</pre>
         <label id="editor-title" for="source">Code</label>
         <div class="editor-actions">
           <span class="language">Python 3.14</span>
-          {% if parent %}
-          <button type="button" class="editor-icon" id="import-parent" data-url="/problems/{{ problem.slug }}/parent-submission" aria-label="Import parent submission" aria-describedby="import-tip" hidden>
+          <button type="button" class="editor-icon" id="import-parent" {% if parent %}data-url="/problems/{{ problem.slug }}/parent-submission" hidden{% else %}disabled{% endif %} aria-label="Import parent submission" aria-describedby="import-tip">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg>
-            <span class="editor-tooltip" id="import-tip" role="tooltip">Replace code with your latest submission to #{{ parent.number }}. Undo to restore.</span>
+            <span class="editor-tooltip" id="import-tip" role="tooltip">{% if parent %}Replace code with your latest submission to #{{ parent.number }}. Undo to restore.{% else %}This problem has no parent.{% endif %}</span>
           </button>
-          {% endif %}
           <button type="submit" formaction="/problems/{{ problem.slug }}/test" class="editor-icon" aria-label="Test" aria-describedby="test-tip">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 5 11 7-11 7Z"/></svg>
             <span class="editor-tooltip" id="test-tip" role="tooltip">Run sample inputs without saving a submission.</span>
