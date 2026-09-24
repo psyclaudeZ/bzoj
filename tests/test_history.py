@@ -41,6 +41,20 @@ def test_editor_history_and_restart():
     assert 'class Counter:' in client.get('/problems/counter').text
 
 
+@pytest.mark.parametrize('source', [
+    'def hello_world(name): return "hello world"',
+    'def hello_world(name): return "hello Python"',
+])
+def test_wrong_answer_counts_visible_and_hidden_passes(source):
+    response = client.post(URL + '/submit', data={'source': source})
+    assert 'Wrong answer (1/2)' in response.text
+    identity = storage.list_submissions()[0]['id']
+    assert 'Wrong answer (1/2)' in client.get(f'{URL}/history/{identity}').text
+    assert 'Wrong answer (1/2)' in client.get(f'/submissions/{identity}').text
+    samples = client.post(URL + '/test', data={'source': 'def hello_world(name): return "wrong"'})
+    assert 'Wrong answer (0/1)' in samples.text
+
+
 @pytest.mark.parametrize('source, status', [
     ("def hello_world(name): return 'wrong'", 'Wrong answer'),
     ("raise ValueError('oops')", 'Runtime error'),
@@ -91,7 +105,26 @@ def test_unexpected_judge_error_is_recorded():
     with patch('bzoj.app.judge', side_effect=RuntimeError):
         response = client.post(URL + '/submit', data={'source': SOLUTION})
     assert response.status_code == 502
+    assert 'Judge error (0/2)' in response.text
     assert storage.list_submissions()[0]['status'] == 'Judge error'
+
+
+@pytest.mark.parametrize('status', ['Runtime error', 'Time limit exceeded', 'Output limit exceeded', 'Judge error'])
+def test_output_counts_for_all_failure_verdicts(status):
+    from bzoj.app import get_problem
+    from bzoj.judge import JudgeResult
+
+    problem = get_problem('hello-world')
+    problem.tests.append(problem.tests[-1])
+    identity = storage.create_submission(problem, '# code')
+    storage.finish_submission(identity, JudgeResult(status=status, cases=[
+        {'number': 1, 'hidden': False, 'status': 'Accepted'},
+        {'number': 2, 'hidden': True, 'status': status},
+        {'number': 3, 'hidden': True, 'status': 'Not run'},
+    ]))
+    page = client.get(f'{URL}?submission={identity}')
+    output = page.text.split('<section class="results"', 1)[1]
+    assert f'{status} (1/3)' in output
 
 
 def test_refresh_does_not_resubmit_and_problem_scope_is_checked():

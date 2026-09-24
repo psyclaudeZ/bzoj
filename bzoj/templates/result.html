@@ -1,7 +1,10 @@
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 {% if result %}
+  {% set total = result.cases|length %}
+  {% if not total and problem is defined %}{% set total = examples|length if sample_run else problem.tests|length %}
+  {% elif not total and submission is defined %}{% set total = submission.problem.tests|length %}{% endif %}
   <div class="result-summary" role="status">
-    <strong class="{{ 'success' if result.status == 'Accepted' else 'error' }}">{{ 'Samples passed' if sample_run and result.status == 'Accepted' else result.status }}</strong>
+    <strong class="{{ 'success' if result.status == 'Accepted' else 'error' }}">{{ 'Samples passed' if sample_run and result.status == 'Accepted' else result.status }} ({{ result.cases|selectattr('status', 'equalto', 'Accepted')|list|length }}/{{ total }})</strong>
     <span class="muted">{{ result.duration_ms }} ms</span>
   </div>
   {% if result.status == 'Output limit exceeded' %}<p class="muted">Output was truncated at 64 KiB. Execution stopped.</p>{% endif %}
