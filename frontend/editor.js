@@ -3,6 +3,7 @@ import {bindExecution} from './execution.js';
 import {EditorView, drawSelection, highlightSpecialChars, keymap, lineNumbers} from '@codemirror/view';
 import {bracketMatching, defaultHighlightStyle, indentUnit, syntaxHighlighting} from '@codemirror/language';
 import {python} from '@codemirror/lang-python';
+import {closeSearchPanel, search, searchKeymap, searchPanelOpen} from '@codemirror/search';
 import {defaultKeymap, history, historyKeymap, indentWithTab, isolateHistory} from '@codemirror/commands';
 
 const source = document.getElementById('source');
@@ -17,10 +18,11 @@ const view = new EditorView({
       drawSelection(),
       bracketMatching(),
       history(),
+      search({top: true}),
       indentUnit.of('    '),
       EditorState.tabSize.of(4),
       syntaxHighlighting(defaultHighlightStyle),
-      keymap.of([indentWithTab, ...defaultKeymap, ...historyKeymap]),
+      keymap.of([indentWithTab, ...searchKeymap, ...defaultKeymap, ...historyKeymap]),
       EditorView.contentAttributes.of({'aria-labelledby': 'editor-title', spellcheck: 'false'}),
       EditorView.updateListener.of(update => {
         if (update.docChanged) source.value = update.state.doc.toString();
@@ -37,10 +39,24 @@ const view = new EditorView({
         '.cm-line': {padding: '0 16px'},
         '.cm-gutters': {backgroundColor: '#fdfdfe', color: '#8993a1', borderRight: '1px solid #e1e5eb'},
         '.cm-lineNumbers .cm-gutterElement': {minWidth: '48px', padding: '0 12px'},
+        '.cm-panels': {backgroundColor: '#fafbfc', color: '#242b35'},
+        '.cm-panel.cm-search': {padding: '8px 28px 8px 12px'},
+        '.cm-search .cm-textfield': {maxWidth: '100%', border: '1px solid #e1e5eb', borderRadius: '4px', background: 'white', padding: '4px 6px'},
+        '.cm-search button': {background: 'none', border: 'none', color: '#647080', textTransform: 'none'},
+        '.cm-search button:hover': {color: '#295cce'},
       }),
     ],
   }),
 });
+
+document.addEventListener('keydown', event => {
+  if ((event.key === 'Escape' || event.key === 'Esc' || event.keyCode === 27) && searchPanelOpen(view.state)) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeSearchPanel(view);
+    view.focus();
+  }
+}, {capture: true});
 
 source.hidden = true;
 document.getElementById('line-numbers').hidden = true;
