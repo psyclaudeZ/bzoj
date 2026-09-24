@@ -1,4 +1,5 @@
 import {EditorState} from '@codemirror/state';
+import {bindExecution} from './execution.js';
 import {EditorView, drawSelection, highlightSpecialChars, keymap, lineNumbers} from '@codemirror/view';
 import {bracketMatching, defaultHighlightStyle, indentUnit, syntaxHighlighting} from '@codemirror/language';
 import {python} from '@codemirror/lang-python';
@@ -44,7 +45,7 @@ const view = new EditorView({
 source.hidden = true;
 document.getElementById('line-numbers').hidden = true;
 document.getElementById('editor-title').addEventListener('click', () => view.focus());
-source.form.addEventListener('submit', () => { source.value = view.state.doc.toString(); });
+bindExecution(source.form, () => view.state.doc.toString());
 window.addEventListener('pageshow', () => {
   // Browsers may restore the form value when navigating back to the editor.
   if (source.value !== view.state.doc.toString()) {
