@@ -32,6 +32,12 @@ Expected: {{ example.expected|tojson }}</pre>
         <label id="editor-title" for="source">Code</label>
         <div class="editor-actions">
           <span class="language">Python 3.14</span>
+          <div class="editor-timer" role="group" aria-label="Practice timer">
+            <button type="button" id="timer-toggle" aria-label="Start timer" aria-pressed="false" title="Start timer">00:00</button>
+            <button type="button" id="timer-reset" aria-label="Reset timer" title="Reset timer">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/></svg>
+            </button>
+          </div>
           <button type="button" class="editor-icon" id="import-parent" {% if parent %}data-url="/problems/{{ problem.slug }}/parent-submission" hidden{% else %}disabled{% endif %} aria-label="Import parent submission" aria-describedby="import-tip">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg>
             <span class="editor-tooltip" id="import-tip" role="tooltip">{% if parent %}Replace code with your latest submission to #{{ parent.number }}. Undo to restore.{% else %}This problem has no parent.{% endif %}</span>
@@ -65,4 +71,5 @@ Expected: {{ example.expected|tojson }}</pre>
 </main>
 <script src="{{ url_for('static', path='/editor.bundle.js') }}?v={{ editor_version() }}" defer></script>
 <script src="{{ url_for('static', path='/problem.js') }}?v={{ script_version() }}" defer></script>
+<script src="{{ url_for('static', path='/timer.js') }}?v={{ timer_version() }}" defer></script>
 {% endblock %}

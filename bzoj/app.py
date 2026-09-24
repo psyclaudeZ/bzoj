@@ -23,6 +23,7 @@ ROOT = Path(__file__).parent
 templates = Jinja2Templates(directory=ROOT / "templates")
 templates.env.globals["css_version"] = lambda: (ROOT / "static" / "app.css").stat().st_mtime_ns
 templates.env.globals["script_version"] = lambda: (ROOT / "static" / "problem.js").stat().st_mtime_ns
+templates.env.globals["timer_version"] = lambda: (ROOT / "static" / "timer.js").stat().st_mtime_ns
 templates.env.globals["editor_version"] = lambda: (ROOT / "static" / "editor.bundle.js").stat().st_mtime_ns
 markdown = MarkdownIt("commonmark", {"html": False})
 templates.env.filters["markdown"] = lambda text: Markup(markdown.render(text))
