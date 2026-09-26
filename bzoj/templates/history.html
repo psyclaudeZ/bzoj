@@ -7,7 +7,7 @@
     {% for row in submissions %}
     <a class="history-row" href="/submissions/{{ row.id }}">
       <span><strong>#{{ row.id }} · {{ row.problem_title }}</strong><br><time class="muted" datetime="{{ row.created_at }}">{{ row.created_at[:19]|replace('T', ' ') }} UTC</time></span>
-      <span class="{{ 'success' if row.status == 'Accepted' else 'muted' }}">{{ row.status }} <span class="muted">· {{ row.duration_ms }} ms</span></span>
+      <span class="{{ 'success' if row.status == 'Accepted' else 'muted' if row.status in ['Running', 'Interrupted'] else 'error' }}">{{ row.status }} <span class="muted">· {{ row.duration_ms }} ms</span></span>
     </a>
     {% else %}<p class="empty-list">No submissions yet.</p>{% endfor %}
   </div>
