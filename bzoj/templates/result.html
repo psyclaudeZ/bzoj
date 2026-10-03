@@ -13,8 +13,10 @@
     <summary>{{ 'Sample' if sample_run else 'Test' }} {{ case.number }}{{ ' · hidden' if case.hidden else '' }} — {{ case.status }}</summary>
     {% if case.hidden %}<p class="muted">Hidden test details and output are not shown.</p>
     {% elif 'actual' in case %}<pre class="output">Input: {{ case.input|tojson }}
-Expected: {{ case.expected|tojson }}
-Actual: {{ case.actual|tojson }}</pre>{% endif %}
+Expected:{% if case.expected is string %}
+{{ case.expected }}{% else %} {{ case.expected|tojson }}{% endif %}
+Actual:{% if case.actual is string %}
+{{ case.actual }}{% else %} {{ case.actual|tojson }}{% endif %}</pre>{% endif %}
   </details>
   {% endfor %}
   <h3>stdout</h3><pre class="output">{{ result.stdout if result.stdout else '(no output)' }}</pre>

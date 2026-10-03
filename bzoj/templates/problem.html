@@ -13,7 +13,8 @@
       {% for example in examples %}
       <h2>Example {{ loop.index }}</h2>
       <pre class="example">Input: {{ example.input|tojson }}
-Expected: {{ example.expected|tojson }}</pre>
+Expected:{% if example.expected is string %}
+{{ example.expected }}{% else %} {{ example.expected|tojson }}{% endif %}</pre>
       {% if example.explanation %}{{ example.explanation|markdown }}{% endif %}
       {% endfor %}
       {% if problem.constraints %}<h2>Constraints</h2>
