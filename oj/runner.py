@@ -47,7 +47,7 @@ def run_source(
     timeout = TIMEOUT_SECONDS if timeout is None else timeout
     output_limit = MAX_OUTPUT_BYTES if output_limit is None else output_limit
     try:
-        with TemporaryDirectory(prefix="bzoj-run-") as workdir:
+        with TemporaryDirectory(prefix="judge-run-") as workdir:
             script = Path(workdir) / "submission.py"
             script.write_text(source, encoding="utf-8")
             for name, content in (files or {}).items():

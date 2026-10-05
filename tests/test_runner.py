@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from bzoj.runner import MAX_OUTPUT_BYTES, MAX_SOURCE_BYTES, run_source
+from oj.runner import MAX_OUTPUT_BYTES, MAX_SOURCE_BYTES, run_source
 
 
 def test_executes_source_and_captures_streams() -> None:
@@ -24,7 +24,7 @@ def test_runtime_and_syntax_errors(source) -> None:
 
 
 def test_infinite_loop_times_out() -> None:
-    with patch("bzoj.runner.TIMEOUT_SECONDS", 0.2):
+    with patch("oj.runner.TIMEOUT_SECONDS", 0.2):
         result = run_source("print('started')\nwhile True: pass")
     assert result.status == "Time limit exceeded"
     assert result.stdout == "started\n"
@@ -46,7 +46,7 @@ def test_background_child_is_terminated(tmp_path) -> None:
     marker = tmp_path / "child-survived"
     child = f"import time; from pathlib import Path; time.sleep(0.7); Path({str(marker)!r}).touch()"
     source = f"import subprocess, sys\nsubprocess.Popen([sys.executable, '-c', {child!r}])"
-    with patch("bzoj.runner.TIMEOUT_SECONDS", 0.2):
+    with patch("oj.runner.TIMEOUT_SECONDS", 0.2):
         result = run_source(source)
     assert result.status == "Time limit exceeded"
     time.sleep(0.8)
@@ -59,12 +59,12 @@ def test_rejects_oversized_source() -> None:
 
 
 def test_spawn_failure_is_server_error() -> None:
-    with patch("bzoj.runner.subprocess.Popen", side_effect=OSError):
+    with patch("oj.runner.subprocess.Popen", side_effect=OSError):
         assert run_source("print('hello')").status == "Server error"
 
 
 def test_harness_report_is_separate_from_stdout():
-    harness = Path('bzoj/harness.py').read_text()
+    harness = Path('oj/harness.py').read_text()
     result = run_source(harness, files={
         'user.py': "def greet(name):\n    print('debug')\n    return 'hello ' + name",
         'driver.py': "def run_case(case):\n    return greet(case)",

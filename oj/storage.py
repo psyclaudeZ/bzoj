@@ -8,10 +8,10 @@ import json
 from pathlib import Path
 import sqlite3
 
-from bzoj.judge import JudgeResult
-from bzoj.problems import Problem
+from oj.judge import JudgeResult
+from oj.problems import Problem
 
-DB_PATH = Path(__file__).resolve().parent.parent / 'local' / 'bzoj.sqlite3'
+DB_PATH = Path(__file__).resolve().parent.parent / 'local' / 'submissions.sqlite3'
 
 
 def definition_hash(problem: Problem) -> str:

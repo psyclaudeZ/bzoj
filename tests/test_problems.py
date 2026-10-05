@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from bzoj.problems import EXAMPLES, ProblemError, catalog, load_problem
+from oj.problems import EXAMPLES, ProblemError, catalog, load_problem
 
 
 def test_samples():
@@ -31,7 +31,7 @@ def test_duplicate_slug_is_rejected_and_edits_are_reloaded(tmp_path):
     raw = (EXAMPLES / 'counter.json').read_text()
     path = tmp_path / 'custom.json'
     path.write_text(raw)
-    with patch('bzoj.problems.PRIVATE', tmp_path):
+    with patch('oj.problems.PRIVATE', tmp_path):
         problems, errors = catalog()
         assert 'counter' not in problems
         assert 'duplicate slug' in errors[0]
@@ -94,7 +94,7 @@ def test_catalog_sorts_by_stable_number_and_rejects_collisions(tmp_path):
         (private, 'middle.json', 'two', 2),
     ]:
         (directory / filename).write_text(json.dumps({**data, 'slug': slug, 'number': number}))
-    with patch('bzoj.problems.EXAMPLES', bundled), patch('bzoj.problems.PRIVATE', private):
+    with patch('oj.problems.EXAMPLES', bundled), patch('oj.problems.PRIVATE', private):
         problems, errors = catalog()
         assert not errors
         assert [p.number for p in problems.values()] == [2, 10, 30]

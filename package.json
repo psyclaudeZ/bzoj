@@ -1,5 +1,5 @@
 {
-  "name": "bzoj-editor",
+  "name": "judge-editor",
   "private": true,
   "type": "module",
   "scripts": {

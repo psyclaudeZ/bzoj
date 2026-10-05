@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 import time
 
-from bzoj import runner
-from bzoj.problems import Problem
+from oj import runner
+from oj.problems import Problem
 
 HARNESS = Path(__file__).with_name('harness.py').read_text(encoding='utf-8')
 

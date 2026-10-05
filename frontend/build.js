@@ -6,7 +6,7 @@ const result = await build({
   bundle: true,
   minify: true,
   format: 'iife',
-  outfile: 'bzoj/static/editor.bundle.js',
+  outfile: 'oj/static/editor.bundle.js',
   metafile: true,
   legalComments: 'external',
   banner: {js: '/* Third-party licenses: editor.bundle.LICENSE.txt */'},
@@ -21,5 +21,5 @@ for (const name of [...packages].sort()) {
   const license = (await readFile(`node_modules/${name}/LICENSE`, 'utf8')).trim();
   notices.set(license, [...(notices.get(license) ?? []), name]);
 }
-await writeFile('bzoj/static/editor.bundle.LICENSE.txt', [...notices]
+await writeFile('oj/static/editor.bundle.LICENSE.txt', [...notices]
   .map(([license, names]) => `${names.join(', ')}\n\n${license}\n`).join('\n'));

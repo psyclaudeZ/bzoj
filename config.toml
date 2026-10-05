@@ -1,0 +1,4 @@
+# Display name used in the header, page titles, and API documentation.
+# Restart the server after changing this file.
+[site]
+name = "BZOJ"

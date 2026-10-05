@@ -1,5 +1,5 @@
 [project]
-name = "bzoj"
+name = "oj"
 version = "0.1.0"
 description = "Local-only Python judge backend bootstrap"
 requires-python = ">=3.14,<3.15"

@@ -3,10 +3,10 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from bzoj import storage
-from bzoj.app import app
-from bzoj.judge import JudgeResult
-from bzoj.problems import EXAMPLES, ProblemError, catalog, load_problem
+from oj import storage
+from oj.app import app
+from oj.judge import JudgeResult
+from oj.problems import EXAMPLES, ProblemError, catalog, load_problem
 
 client = TestClient(app, base_url='http://127.0.0.1:8000')
 
@@ -14,8 +14,8 @@ client = TestClient(app, base_url='http://127.0.0.1:8000')
 @pytest.fixture
 def definitions(tmp_path, monkeypatch):
     base = json.loads((EXAMPLES / 'hello-world.json').read_text())
-    monkeypatch.setattr('bzoj.problems.EXAMPLES', tmp_path)
-    monkeypatch.setattr('bzoj.problems.PRIVATE', tmp_path / 'missing')
+    monkeypatch.setattr('oj.problems.EXAMPLES', tmp_path)
+    monkeypatch.setattr('oj.problems.PRIVATE', tmp_path / 'missing')
 
     def write(slug, number, parent=None):
         path = tmp_path / f'{slug}.json'

@@ -1,5 +1,5 @@
 (() => {
-  const key = 'bzoj.stopwatch.v1';
+  const key = 'oj.stopwatch.v1';
   const toggle = document.getElementById('timer-toggle');
   const reset = document.getElementById('timer-reset');
   let state = {elapsed: 0, startedAt: null};

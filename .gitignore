@@ -1,6 +1,7 @@
 # Local planning
 TASKS.md
 AGENTS.md
+/docs/
 
 # Private problem data, submission history, and runtime state
 local/

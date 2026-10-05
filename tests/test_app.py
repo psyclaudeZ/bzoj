@@ -3,16 +3,16 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 import pytest
 
-from bzoj.app import app
+from oj.app import app
 
 client = TestClient(app, base_url="http://127.0.0.1:8000")
 SUBMIT = "/problems/hello-world/submit"
 
 
 def test_catalog_marks_any_accepted_submission():
-    from bzoj import storage
-    from bzoj.app import get_problem
-    from bzoj.judge import JudgeResult
+    from oj import storage
+    from oj.app import get_problem
+    from oj.judge import JudgeResult
 
     assert storage.accepted_slugs() == set()
     assert 'aria-label="Accepted"' not in client.get('/').text
@@ -70,7 +70,7 @@ def test_source_and_output_are_escaped() -> None:
     ("", "(no output)"),
 ])
 def test_execution_feedback(source, expected) -> None:
-    with patch("bzoj.runner.TIMEOUT_SECONDS", 0.5):
+    with patch("oj.runner.TIMEOUT_SECONDS", 0.5):
         response = client.post(SUBMIT, data={"source": source})
     assert response.status_code == 200
     assert expected in response.text
@@ -82,7 +82,7 @@ def test_execution_feedback(source, expected) -> None:
     {"sec-fetch-site": "cross-site"},
 ])
 def test_cross_site_requests_cannot_execute(headers) -> None:
-    with patch("bzoj.app.judge") as run:
+    with patch("oj.app.judge") as run:
         assert client.post(SUBMIT, data={"source": "print(1)"}, headers=headers).status_code == 403
         run.assert_not_called()
 
@@ -94,7 +94,7 @@ def test_same_origin_submission() -> None:
 
 def test_invalid_host_and_oversized_source() -> None:
     assert client.get("/", headers={"host": "example.com"}).status_code == 400
-    with patch("bzoj.app.judge") as run:
+    with patch("oj.app.judge") as run:
         assert client.post(SUBMIT, data={"source": "x" * 65537}).status_code == 413
         assert client.post(SUBMIT, data={"source": "x" * 200000}).status_code == 413
         assert client.post(SUBMIT, data={"other": "print(1)"}).status_code == 400
@@ -102,7 +102,7 @@ def test_invalid_host_and_oversized_source() -> None:
 
 
 def test_private_files_are_not_served() -> None:
-    for path in ("/local/bzoj.sqlite3", "/static/../app.py", "/static/%2e%2e/app.py"):
+    for path in ("/local/submissions.sqlite3", "/static/../app.py", "/static/%2e%2e/app.py"):
         assert client.get(path).status_code == 404
 
 
@@ -121,13 +121,13 @@ def test_counter_submission():
 
 def test_json_problem_is_discovered_and_hidden_data_stays_private(tmp_path):
     import json
-    from bzoj.problems import EXAMPLES
+    from oj.problems import EXAMPLES
     data = json.loads((EXAMPLES / 'hello-world.json').read_text())
     data.update(number=20, slug='custom', title='Custom', statement='A **bold** statement <script>bad()</script>')
     data['tests'][1]['input']['name'] = 'SECRET_INPUT_782'
     data['tests'][1]['expected'] = 'SECRET_EXPECTED_413'
     (tmp_path / 'custom.json').write_text(json.dumps(data))
-    with patch('bzoj.problems.PRIVATE', tmp_path):
+    with patch('oj.problems.PRIVATE', tmp_path):
         assert 'Custom' in client.get('/').text
         page = client.get('/problems/custom')
         assert '<strong>bold</strong>' in page.text
@@ -143,7 +143,7 @@ def test_json_problem_is_discovered_and_hidden_data_stays_private(tmp_path):
 
 def test_invalid_problem_is_reported_without_breaking_list(tmp_path):
     (tmp_path / 'broken.json').write_text('{}')
-    with patch('bzoj.problems.PRIVATE', tmp_path):
+    with patch('oj.problems.PRIVATE', tmp_path):
         response = client.get('/')
     assert response.status_code == 200
     assert 'broken.json' in response.text
@@ -152,11 +152,11 @@ def test_invalid_problem_is_reported_without_breaking_list(tmp_path):
 
 def test_home_uses_problem_numbers_in_numeric_order(tmp_path):
     import json
-    from bzoj.problems import EXAMPLES
+    from oj.problems import EXAMPLES
     data = json.loads((EXAMPLES / 'counter.json').read_text())
     for slug, number in [('first-file', 10), ('last-file', 2)]:
         (tmp_path / f'{slug}.json').write_text(json.dumps({**data, 'slug': slug, 'number': number}))
-    with patch('bzoj.problems.EXAMPLES', tmp_path), patch('bzoj.problems.PRIVATE', tmp_path / 'empty'):
+    with patch('oj.problems.EXAMPLES', tmp_path), patch('oj.problems.PRIVATE', tmp_path / 'empty'):
         response = client.get('/')
         assert response.status_code == 200
         assert response.text.index('href="/problems/last-file"') < response.text.index('href="/problems/first-file"')
@@ -168,11 +168,11 @@ def test_home_uses_problem_numbers_in_numeric_order(tmp_path):
 
 def test_home_sort_controls_and_name_order(tmp_path):
     import json
-    from bzoj.problems import EXAMPLES
+    from oj.problems import EXAMPLES
     data = json.loads((EXAMPLES / 'counter.json').read_text())
     for slug, title, number in [('zulu', 'Zulu', 1), ('alpha-later', 'alpha', 10), ('alpha-first', 'Alpha', 2)]:
         (tmp_path / f'{slug}.json').write_text(json.dumps({**data, 'slug': slug, 'title': title, 'number': number}))
-    with patch('bzoj.problems.EXAMPLES', tmp_path), patch('bzoj.problems.PRIVATE', tmp_path / 'empty'):
+    with patch('oj.problems.EXAMPLES', tmp_path), patch('oj.problems.PRIVATE', tmp_path / 'empty'):
         for query, order, selected in [
             ('', ['zulu', 'alpha-first', 'alpha-later'], 'number'),
             ('?sort=number', ['zulu', 'alpha-first', 'alpha-later'], 'number'),
@@ -191,14 +191,14 @@ def test_tag_filters_preserve_sorting_and_encode_links(tmp_path):
     import json
     from html import unescape
     from urllib.parse import urlencode
-    from bzoj.problems import EXAMPLES
+    from oj.problems import EXAMPLES
     data = json.loads((EXAMPLES / 'counter.json').read_text())
     entries = [('zulu', 'Zulu', 1, ['其他']), ('alpha', 'Alpha', 2, ['其他', '人类学']),
                ('third', 'Third', 3, ['人类学']), ('untagged', 'Untagged', 4, []),
                ('special', 'Special', 5, ['a&b/#? <script>'])]
     for slug, title, number, tags in entries:
         (tmp_path / f'{slug}.json').write_text(json.dumps({**data, 'slug': slug, 'title': title, 'number': number, 'tags': tags}))
-    with patch('bzoj.problems.EXAMPLES', tmp_path), patch('bzoj.problems.PRIVATE', tmp_path / 'none'):
+    with patch('oj.problems.EXAMPLES', tmp_path), patch('oj.problems.PRIVATE', tmp_path / 'none'):
         response = client.get('/', params={'tag': '其他', 'sort': 'name'})
         assert response.status_code == 200
         text = response.text

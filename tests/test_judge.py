@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 import pytest
 
-from bzoj.judge import judge
-from bzoj.problems import EXAMPLES, load_problem
+from oj.judge import judge
+from oj.problems import EXAMPLES, load_problem
 
 COUNTER = '''class Counter:
     def __init__(self, initial):
@@ -35,7 +35,7 @@ def test_class_and_single_function(slug, source):
     ("while True: print('x' * 8192)", 'Output limit exceeded'),
 ])
 def test_verdicts(source, status):
-    with patch('bzoj.runner.TIMEOUT_SECONDS', 0.3):
+    with patch('oj.runner.TIMEOUT_SECONDS', 0.3):
         result = judge(load_problem(EXAMPLES / 'hello-world.json'), source)
     assert result.status == status
 
@@ -64,7 +64,7 @@ def test_boolean_is_not_numeric_match():
 def test_case_state_is_fresh_and_budget_is_shared():
     problem = load_problem(EXAMPLES / 'hello-world.json')
     source = "import time\ntime.sleep(0.2)\n" + GREETING
-    with patch('bzoj.runner.TIMEOUT_SECONDS', 0.35):
+    with patch('oj.runner.TIMEOUT_SECONDS', 0.35):
         result = judge(problem, source)
     assert result.cases[0]['status'] == 'Accepted'
     assert result.cases[1]['status'] == 'Time limit exceeded'

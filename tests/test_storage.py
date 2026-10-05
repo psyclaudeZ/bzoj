@@ -1,8 +1,8 @@
 import sqlite3
 
-from bzoj import storage
-from bzoj.judge import JudgeResult
-from bzoj.problems import EXAMPLES, load_problem
+from oj import storage
+from oj.judge import JudgeResult
+from oj.problems import EXAMPLES, load_problem
 
 
 def example():

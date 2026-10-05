@@ -13,14 +13,17 @@ from markupsafe import Markup
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from bzoj.runner import MAX_SOURCE_BYTES
-from bzoj.judge import judge
-from bzoj.problems import catalog
-from bzoj import storage
-from bzoj.judge import JudgeResult
+from oj.runner import MAX_SOURCE_BYTES
+from oj.judge import judge
+from oj.problems import catalog
+from oj import storage
+from oj.judge import JudgeResult
+from oj.config import load_settings
 
 ROOT = Path(__file__).parent
+settings = load_settings()
 templates = Jinja2Templates(directory=ROOT / "templates")
+templates.env.globals["site_name"] = settings.site.name
 templates.env.globals["css_version"] = lambda: (ROOT / "static" / "app.css").stat().st_mtime_ns
 templates.env.globals["script_version"] = lambda: (ROOT / "static" / "problem.js").stat().st_mtime_ns
 templates.env.globals["timer_version"] = lambda: (ROOT / "static" / "timer.js").stat().st_mtime_ns
@@ -39,7 +42,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="BZOJ", lifespan=lifespan)
+app = FastAPI(title=settings.site.name, lifespan=lifespan)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "[::1]"])
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
